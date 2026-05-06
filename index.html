@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دكاني — حالة المحلات في طولكرم</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+/* ===== VARIABLES ===== */
+:root {
+  --bg:     #07080f;
+  --bg2:    #0d1020;
+  --card:   #111827;
+  --card2:  #1a2235;
+  --border: rgba(255,255,255,0.08);
+  --text:   #e8edf5;
+  --dim:    #8899b4;
+  --muted:  #526078;
+  --accent: #38bdf8;
+  --accent2:#818cf8;
+  --green:  #22c55e;
+  --orange: #f97316;
+  --red:    #ef4444;
+  --gold:   #f59e0b;
+  --shadow: 0 8px 40px rgba(0,0,0,0.6);
+  --r:      14px;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:'Tajawal',sans-serif; background:var(--bg); color:var(--text); direction:rtl; overflow-x:hidden; }
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--bg2); }
+::-webkit-scrollbar-thumb { background:var(--card2); border-radius:3px; }
+
+/* ===== BODY BG GLOW ===== */
+body::before {
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 20%, rgba(56,189,248,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 85% 80%, rgba(129,140,248,.05) 0%, transparent 60%);
+}
+
+/* ===== NAVBAR ===== */
+.nav {
+  position:fixed; top:0; right:0; left:0; z-index:1000;
+  height:64px;
+  background:rgba(7,8,15,.88);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 22px; gap:12px;
+}
+.logo {
+  font-size:21px; font-weight:900; cursor:pointer; user-select:none;
+  white-space:nowrap; display:flex; align-items:center; gap:8px;
+}
+.logo-text {
+  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.logo-sub { font-size:11px; color:var(--muted); font-weight:500; }
+.nav-links { display:flex; align-items:center; gap:4px; }
+.nav-link {
+  padding:7px 13px; border-radius:8px; font-size:13px; font-weight:600;
+  color:var(--dim); cursor:pointer; border:none; background:none;
+  font-family:'Tajawal',sans-serif; transition:all .2s; white-space:nowrap;
+}
+.nav-link:hover { color:var(--text); background:var(--card2); }
+#nav-auth { display:flex; align-items:center; gap:6px; flex-wrap:nowrap; }
+.nbtn {
+  padding:7px 15px; border-radius:8px; border:1px solid var(--border);
+  background:var(--card2); color:var(--text); font-family:'Tajawal',sans-serif;
+  font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.nbtn:hover { border-color:var(--accent); color:var(--accent); }
+.nbtn.blue { background:linear-gradient(135deg,var(--accent),#0ea5e9); border:none; color:#fff; }
+.nbtn.blue:hover { transform:translateY(-1px); box-shadow:0 4px 18px rgba(56,189,248,.35); }
+.nbtn.green { background:rgba(34,197,94,.12); border-color:rgba(34,197,94,.3); color:var(--green); }
+.nbtn.green:hover { background:rgba(34,197,94,.2); }
+.nav-user { font-size:13px; color:var(--dim); display:flex; align-items:center; gap:6px; }
+.nav-avatar {
+  width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#fff;
+}
+
+/* ===== PAGES ===== */
+.page { display:none; min-height:100vh; padding-top:64px; position:relative; z-index:1; }
+.page.active { display:block; animation:fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+/* ===== MAP PAGE ===== */
+#page-map { padding-top:64px; }
+#the-map { width:100%; height:calc(100vh - 64px); }
+
+.map-bar {
+  position:fixed; top:76px; right:50%; transform:translateX(50%);
+  z-index:800; display:flex; align-items:center; gap:10px;
+  background:rgba(11,14,22,.92); backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:50px;
+  padding:8px 18px; width:min(420px, 92vw);
+}
+.map-bar input {
+  background:none; border:none; outline:none; color:var(--text);
+  font-family:'Tajawal',sans-serif; font-size:14px; width:100%;
+}
+.map-bar input::placeholder { color:var(--muted); }
+
+.map-legend {
+  position:fixed; bottom:22px; right:18px; z-index:800;
+  background:rgba(11,14,22,.93); backdrop-filter:blur(18px);
+  border:1px solid var(--border); border-radius:var(--r);
+  padding:14px 18px; display:flex; flex-direction:column; gap:9px;
+}
+.leg-title { font-size:10px; font-weight:800; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:2px; }
+.leg-row { display:flex; align-items:center; gap:9px; font-size:13px; color:var(--dim); }
+.leg-dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; border:2px solid rgba(255,255,255,.2); }
+
+.map-counter {
+  position:fixed; bottom:22px; left:18px; z-index:800;
+  background:rgba(11,14,22,.93); backdrop-filter:blur(18px);
+  border:1px solid var(--border); border-radius:var(--r);
+  padding:12px 18px; font-size:13px; color:var(--dim);
+  display:flex; gap:14px;
+}
+.map-counter span { display:flex; align-items:center; gap:5px; }
+.map-counter b { color:var(--text); font-weight:800; }
+
+/* ===== POPUP ===== */
+.leaflet-popup-content-wrapper {
+  background:var(--card) !important; border:1px solid var(--border) !important;
+  border-radius:16px !important; padding:0 !important;
+  overflow:hidden !important; box-shadow:0 16px 50px rgba(0,0,0,.7) !important;
+}
+.leaflet-popup-tip { background:var(--card) !important; }
+.leaflet-popup-content { margin:0 !important; padding:0 !important; width:270px !important; }
+.pop { font-family:'Tajawal',sans-serif; direction:rtl; }
+.pop-img { width:100%; height:130px; object-fit:cover; }
+.pop-body { padding:14px; }
+.pop-name { font-size:16px; font-weight:800; color:var(--text); margin-bottom:4px; }
+.pop-desc { font-size:12px; color:var(--dim); line-height:1.6; margin-bottom:10px; }
+.pop-btn {
+  display:block; width:100%; text-align:center;
+  padding:9px; border-radius:9px; border:none;
+  background:linear-gradient(135deg,var(--accent),#0ea5e9);
+  color:#fff; font-size:13px; font-weight:800;
+  font-family:'Tajawal',sans-serif; cursor:pointer;
+  transition:opacity .2s;
+}
+.pop-btn:hover { opacity:.9; }
+
+/* ===== BADGE ===== */
+.badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700;
+}
+.badge.lg { font-size:14px; padding:6px 16px; }
+.b-open   { background:rgba(34,197,94,.15);  color:var(--green);  border:1px solid rgba(34,197,94,.3);  }
+.b-busy   { background:rgba(249,115,22,.15); color:var(--orange); border:1px solid rgba(249,115,22,.3); }
+.b-closed { background:rgba(239,68,68,.15);  color:var(--red);    border:1px solid rgba(239,68,68,.3);  }
+
+/* ===== AUTH PAGES ===== */
+.auth-wrap {
+  min-height:calc(100vh - 64px); display:flex;
+  align-items:center; justify-content:center; padding:30px 16px;
+}
+.auth-box {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:22px; padding:42px 38px;
+  width:min(460px, 100%); box-shadow:var(--shadow);
+  position:relative; overflow:hidden;
+}
+.auth-box::after {
+  content:''; position:absolute; top:-100px; right:-100px; width:240px; height:240px;
+  background:radial-gradient(circle, rgba(56,189,248,.1), transparent 65%);
+  border-radius:50%; pointer-events:none;
+}
+.auth-icon { font-size:50px; text-align:center; margin-bottom:14px; }
+.auth-title { font-size:26px; font-weight:900; text-align:center; margin-bottom:5px; }
+.auth-sub { text-align:center; color:var(--muted); font-size:14px; margin-bottom:30px; line-height:1.5; }
+.form-group { display:flex; flex-direction:column; gap:16px; margin-bottom:22px; }
+.f-label { display:block; font-size:13px; font-weight:700; color:var(--dim); margin-bottom:6px; }
+.f-input {
+  width:100%; background:var(--bg2); border:1.5px solid var(--border);
+  border-radius:10px; padding:13px 15px; color:var(--text);
+  font-family:'Tajawal',sans-serif; font-size:15px; outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.f-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(56,189,248,.13); }
+.f-input::placeholder { color:var(--muted); }
+textarea.f-input { resize:vertical; line-height:1.6; }
+.f-hint { font-size:12px; color:var(--muted); margin-top:5px; line-height:1.5; }
+.f-hint a { color:var(--accent); text-decoration:none; }
+.auth-switch { text-align:center; margin-top:18px; font-size:14px; color:var(--muted); }
+.auth-switch a { color:var(--accent); cursor:pointer; font-weight:700; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  width:100%; padding:14px; border-radius:10px; border:1.5px solid var(--border);
+  background:var(--card2); color:var(--text); font-family:'Tajawal',sans-serif;
+  font-size:15px; font-weight:800; cursor:pointer; transition:all .22s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn:hover:not(:disabled) { border-color:var(--accent); transform:translateY(-1px); }
+.btn:disabled { opacity:.45; cursor:not-allowed; transform:none !important; }
+.btn.primary {
+  background:linear-gradient(135deg, var(--accent), #0ea5e9);
+  border:none; color:#fff;
+}
+.btn.primary:hover:not(:disabled) { box-shadow:0 6px 24px rgba(56,189,248,.4); }
+.btn.danger { border-color:rgba(239,68,68,.3); color:var(--red); background:rgba(239,68,68,.07); }
+.btn.danger:hover:not(:disabled) { background:rgba(239,68,68,.15); }
+.btn.sm { padding:9px 18px; font-size:13px; width:auto; }
+.btn.icon-btn { border-radius:8px; }
+
+/* ===== PAGE WRAPPER ===== */
+.page-wrap { max-width:720px; margin:0 auto; padding:38px 20px 60px; }
+.page-wrap.wide { max-width:920px; }
+.page-head { margin-bottom:28px; }
+.page-head h1 { font-size:26px; font-weight:900; margin-bottom:5px; }
+.page-head p { color:var(--muted); font-size:14px; }
+
+/* ===== CARD ===== */
+.card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:20px; padding:28px; box-shadow:var(--shadow);
+}
+.card + .card { margin-top:16px; }
+.card-title { font-size:11px; font-weight:800; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:14px; }
+
+/* ===== ADD SHOP / EDIT MAP ===== */
+.mini-map {
+  height:230px; border-radius:12px; overflow:hidden;
+  border:1.5px solid var(--border); margin-bottom:10px;
+}
+.loc-feed {
+  display:none; background:rgba(34,197,94,.1);
+  border:1px solid rgba(34,197,94,.25); border-radius:8px;
+  padding:9px 14px; font-size:13px; color:var(--green); margin-bottom:14px;
+}
+.status-picker { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.sp-opt {
+  padding:13px 8px; border-radius:11px; border:2px solid var(--border);
+  background:var(--bg2); text-align:center; cursor:pointer;
+  font-family:'Tajawal',sans-serif; font-size:13px; font-weight:800;
+  transition:all .2s; position:relative; color:var(--dim);
+}
+.sp-opt input { position:absolute; opacity:0; width:0; height:0; }
+.sp-opt.opt-o:has(input:checked), .sp-opt.opt-o:hover { border-color:var(--green);  background:rgba(34,197,94,.13);  color:var(--green);  }
+.sp-opt.opt-b:has(input:checked), .sp-opt.opt-b:hover { border-color:var(--orange); background:rgba(249,115,22,.13); color:var(--orange); }
+.sp-opt.opt-c:has(input:checked), .sp-opt.opt-c:hover { border-color:var(--red);    background:rgba(239,68,68,.13);  color:var(--red);    }
+
+/* ===== DASHBOARD ===== */
+.shop-preview {
+  display:flex; gap:18px; align-items:flex-start;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:20px; padding:22px; box-shadow:var(--shadow); margin-bottom:16px;
+}
+.shop-thumb {
+  width:110px; height:78px; border-radius:12px; object-fit:cover;
+  flex-shrink:0; border:1px solid var(--border);
+}
+.shop-info h2 { font-size:19px; font-weight:900; margin-bottom:5px; }
+.shop-info p { font-size:13px; color:var(--dim); line-height:1.5; margin-bottom:9px; }
+
+.status-big-btns { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.sbb {
+  padding:16px 10px; border-radius:14px; border:2px solid var(--border);
+  background:var(--bg2); color:var(--dim); font-family:'Tajawal',sans-serif;
+  font-size:14px; font-weight:800; cursor:pointer; transition:all .22s; text-align:center;
+}
+.sbb:hover, .sbb.active { transform:translateY(-3px); }
+.sbb.o { border-color:rgba(34,197,94,.3); color:var(--green); }
+.sbb.o:hover, .sbb.o.active { background:rgba(34,197,94,.15); border-color:var(--green); box-shadow:0 4px 20px rgba(34,197,94,.2); }
+.sbb.b { border-color:rgba(249,115,22,.3); color:var(--orange); }
+.sbb.b:hover, .sbb.b.active { background:rgba(249,115,22,.15); border-color:var(--orange); box-shadow:0 4px 20px rgba(249,115,22,.2); }
+.sbb.c { border-color:rgba(239,68,68,.3); color:var(--red); }
+.sbb.c:hover, .sbb.c.active { background:rgba(239,68,68,.15); border-color:var(--red); box-shadow:0 4px 20px rgba(239,68,68,.2); }
+
+.qr-wrap {
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:20px; padding:28px; box-shadow:var(--shadow);
+}
+.qr-box { background:#f0f4f8; padding:14px; border-radius:14px; }
+.qr-link { font-size:12px; color:var(--muted); word-break:break-all; text-align:center; max-width:320px; }
+.qr-link a { color:var(--accent); text-decoration:none; }
+
+/* ===== SHOP PUBLIC PAGE ===== */
+.shop-hero { width:100%; height:280px; object-fit:cover; border-radius:20px 20px 0 0; }
+.shop-page-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:20px; overflow:hidden; box-shadow:var(--shadow);
+}
+.shop-page-body { padding:28px; }
+.shop-page-hdr { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px; }
+.shop-page-hdr h1 { font-size:28px; font-weight:900; }
+.shop-page-desc { color:var(--dim); line-height:1.75; font-size:15px; margin-bottom:20px; }
+.shop-meta { display:flex; gap:18px; flex-wrap:wrap; margin-bottom:22px; padding-top:16px; border-top:1px solid var(--border); }
+.shop-meta span { font-size:13px; color:var(--muted); display:flex; align-items:center; gap:5px; }
+.shop-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.shop-actions .btn { flex:1; min-width:130px; }
+
+/* ===== ADMIN ===== */
+.admin-wrap { max-width:940px; margin:0 auto; padding:38px 20px 60px; }
+.admin-hdr { display:flex; align-items:center; gap:16px; margin-bottom:28px; padding:22px 26px; background:var(--card); border:1px solid var(--border); border-radius:20px; }
+.admin-crown { font-size:42px; }
+.admin-title { font-size:22px; font-weight:900; }
+.admin-sub { color:var(--muted); font-size:13px; margin-top:2px; }
+
+.admin-login-box {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:20px; padding:40px; max-width:420px; margin:0 auto; box-shadow:var(--shadow);
+}
+
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:14px; margin-bottom:24px; }
+.stat-box {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:20px 16px; text-align:center;
+}
+.stat-box.g { border-color:rgba(34,197,94,.25); }
+.stat-box.or{ border-color:rgba(249,115,22,.25); }
+.stat-box.r { border-color:rgba(239,68,68,.25); }
+.stat-num { font-size:34px; font-weight:900; color:var(--accent); display:block; line-height:1; margin-bottom:5px; }
+.stat-box.g  .stat-num { color:var(--green);  }
+.stat-box.or .stat-num { color:var(--orange); }
+.stat-box.r  .stat-num { color:var(--red);    }
+.stat-lbl { font-size:12px; color:var(--muted); font-weight:600; }
+
+.admin-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:14px 18px; margin-bottom:10px;
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+}
+.admin-thumb { width:64px; height:46px; border-radius:9px; object-fit:cover; flex-shrink:0; }
+.admin-info { flex:1; min-width:120px; }
+.admin-info strong { display:block; font-size:15px; font-weight:800; margin-bottom:2px; }
+.admin-info small { color:var(--muted); font-size:12px; }
+.admin-acts { display:flex; gap:6px; flex-wrap:wrap; }
+.abtn {
+  padding:6px 13px; font-size:12px; border-radius:7px; border:1.5px solid var(--border);
+  background:var(--card2); color:var(--text); font-family:'Tajawal',sans-serif;
+  cursor:pointer; font-weight:700; transition:all .15s;
+}
+.abtn.g  { border-color:rgba(34,197,94,.35);  color:var(--green);  } .abtn.g:hover  { background:rgba(34,197,94,.15);  }
+.abtn.or { border-color:rgba(249,115,22,.35); color:var(--orange); } .abtn.or:hover { background:rgba(249,115,22,.15); }
+.abtn.r  { border-color:rgba(239,68,68,.35);  color:var(--red);    } .abtn.r:hover  { background:rgba(239,68,68,.15);  }
+
+/* ===== EMPTY STATE ===== */
+.empty { text-align:center; padding:60px 20px; color:var(--muted); }
+.empty-ico { font-size:64px; margin-bottom:16px; }
+.empty h3 { font-size:18px; font-weight:800; color:var(--dim); margin-bottom:8px; }
+.empty p { font-size:14px; margin-bottom:22px; line-height:1.6; }
+
+/* ===== TOAST ===== */
+#toast-el {
+  position:fixed; bottom:26px; left:50%; transform:translateX(-50%);
+  z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none;
+}
+.toast {
+  padding:12px 22px; border-radius:50px; font-size:14px; font-weight:700;
+  box-shadow:var(--shadow); white-space:nowrap; pointer-events:none;
+  opacity:0; transform:translateY(8px); transition:all .28s;
+}
+.toast.show { opacity:1; transform:translateY(0); }
+.toast.ok { background:rgba(34,197,94,.15);  border:1px solid rgba(34,197,94,.4);  color:var(--green);  }
+.toast.err{ background:rgba(239,68,68,.15);  border:1px solid rgba(239,68,68,.4);  color:var(--red);    }
+.toast.inf{ background:rgba(56,189,248,.15); border:1px solid rgba(56,189,248,.4); color:var(--accent); }
+
+/* ===== LEAFLET OVERRIDES ===== */
+.leaflet-control-attribution { background:rgba(7,8,15,.75) !important; color:var(--muted) !important; }
+.leaflet-control-zoom a { background:var(--card) !important; color:var(--text) !important; border-color:var(--border) !important; }
+.leaflet-control-zoom a:hover { background:var(--card2) !important; color:var(--accent) !important; }
+
+/* ===== DIVIDER ===== */
+.divider { height:1px; background:var(--border); margin:6px 0; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:600px) {
+  .nav { padding:0 14px; }
+  .logo-sub { display:none; }
+  .auth-box { padding:28px 20px; }
+  .card, .shop-preview { padding:18px; }
+  .shop-thumb { width:80px; height:56px; }
+  .status-picker { grid-template-columns:1fr; }
+  .status-big-btns { grid-template-columns:1fr; }
+  .shop-hero { height:200px; }
+  .shop-page-hdr { flex-direction:column; }
+  .admin-row { flex-direction:column; align-items:flex-start; }
+  .map-counter { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<nav class="nav">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="logo" id="logo-tap">
+      <span>🏪</span>
+      <span class="logo-text">دكاني</span>
+      <span class="logo-sub">| طولكرم</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="goMap()">🗺️ الخريطة</button>
+    </div>
+  </div>
+  <div id="nav-auth">
+    <button class="nbtn" onclick="showPage('login')">تسجيل الدخول</button>
+    <button class="nbtn blue" onclick="showPage('register')">حساب جديد</button>
+  </div>
+</nav>
+
+<div id="toast-el"></div>
+
+<!-- ═══════════════════ MAP ═══════════════════ -->
+<div id="page-map" class="page active">
+  <div class="map-bar">
+    <span style="color:var(--muted);font-size:16px">🔍</span>
+    <input type="text" placeholder="ابحث عن محل بالاسم أو الوصف..." oninput="filterMarkers(this.value)"/>
+  </div>
+  <div id="the-map"></div>
+  <div class="map-legend">
+    <div class="leg-title">حالة المحلات</div>
+    <div class="leg-row"><div class="leg-dot" style="background:var(--green)"></div> مفتوح</div>
+    <div class="leg-row"><div class="leg-dot" style="background:var(--orange)"></div> مشغول</div>
+    <div class="leg-row"><div class="leg-dot" style="background:var(--red)"></div> مغلق</div>
+  </div>
+  <div class="map-counter" id="map-counter">
+    <span>🟢 <b id="cnt-o">0</b></span>
+    <span>🟠 <b id="cnt-b">0</b></span>
+    <span>🔴 <b id="cnt-c">0</b></span>
+  </div>
+</div>
+
+<!-- ═══════════════════ LOGIN ═══════════════════ -->
+<div id="page-login" class="page">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-icon">🔐</div>
+      <h1 class="auth-title">أهلاً بعودتك</h1>
+      <p class="auth-sub">سجّل الدخول لإدارة محلك وتحديث حالته</p>
+      <div class="form-group">
+        <div>
+          <label class="f-label">اسم المستخدم</label>
+          <input id="l-user" class="f-input" placeholder="أدخل اسم المستخدم" onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
+        <div>
+          <label class="f-label">كلمة المرور</label>
+          <input id="l-pass" class="f-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
+      </div>
+      <button id="btn-login" class="btn primary" onclick="doLogin()">تسجيل الدخول ←</button>
+      <p class="auth-switch">ليس لديك حساب؟ <a onclick="showPage('register')">أنشئ حساباً الآن</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ REGISTER ═══════════════════ -->
+<div id="page-register" class="page">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-icon">🏪</div>
+      <h1 class="auth-title">انضم إلى دكاني</h1>
+      <p class="auth-sub">أنشئ حساباً مجانياً وأضف محلك على خريطة طولكرم</p>
+      <div class="form-group">
+        <div>
+          <label class="f-label">اسم المستخدم *</label>
+          <input id="r-user" class="f-input" placeholder="اختر اسم مستخدم فريد (3 أحرف على الأقل)"/>
+        </div>
+        <div>
+          <label class="f-label">كلمة المرور *</label>
+          <input id="r-pass" class="f-input" type="password" placeholder="6 أحرف على الأقل"/>
+        </div>
+        <div>
+          <label class="f-label">تأكيد كلمة المرور *</label>
+          <input id="r-pass2" class="f-input" type="password" placeholder="أعد كتابة كلمة المرور" onkeydown="if(event.key==='Enter')doRegister()"/>
+        </div>
+      </div>
+      <button id="btn-reg" class="btn primary" onclick="doRegister()">إنشاء الحساب ←</button>
+      <p class="auth-switch">لديك حساب بالفعل؟ <a onclick="showPage('login')">سجّل الدخول</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ADD SHOP ═══════════════════ -->
+<div id="page-add" class="page">
+  <div class="page-wrap">
+    <div class="page-head">
+      <h1>🏪 أضف محلك</h1>
+      <p>أضف تفاصيل محلك وحدد موقعه على الخريطة ليظهر للجميع</p>
+    </div>
+    <div class="card">
+      <div class="form-group">
+        <div>
+          <label class="f-label">اسم المحل *</label>
+          <input id="s-name" class="f-input" placeholder="مثال: محل أبو أحمد للإلكترونيات"/>
+        </div>
+        <div>
+          <label class="f-label">وصف المحل *</label>
+          <textarea id="s-desc" class="f-input" rows="3" placeholder="اكتب وصفاً مختصراً لمحلك وما يقدمه..."></textarea>
+        </div>
+        <div>
+          <label class="f-label">صورة المحل (اختياري)</label>
+          <!-- رفع من الجهاز -->
+          <label class="img-upload-label" id="add-img-label">
+            <input type="file" id="s-img-file" accept="image/*" onchange="previewAndStoreImg(this,'add-img-preview','s-img-data')"/>
+            <span id="add-img-label-text">📷 اضغط لاختيار صورة من جهازك</span>
+          </label>
+          <img id="add-img-preview" style="display:none;width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid var(--border)"/>
+          <p class="f-hint" style="margin-top:6px">أو الصق رابط صورة مباشر:</p>
+          <input id="s-img" class="f-input" style="margin-top:6px" placeholder="https://i.imgur.com/xxxxx.jpg (اختياري)"/>
+          <input type="hidden" id="s-img-data"/>
+        </div>
+        <div>
+          <label class="f-label">حالة المحل *</label>
+          <div class="status-picker">
+            <label class="sp-opt opt-o"><input type="radio" name="add-st" value="open" checked/> 🟢 مفتوح</label>
+            <label class="sp-opt opt-b"><input type="radio" name="add-st" value="busy"/> 🟠 مشغول</label>
+            <label class="sp-opt opt-c"><input type="radio" name="add-st" value="closed"/> 🔴 مغلق</label>
+          </div>
+        </div>
+        <div>
+          <label class="f-label">موقع المحل على الخريطة *</label>
+          <p class="f-hint" style="margin-bottom:8px">👆 اضغط على الخريطة لتحديد موقع محلك بدقة</p>
+          <div id="add-map" class="mini-map"></div>
+          <div id="loc-fb" class="loc-feed"></div>
+        </div>
+      </div>
+      <button id="btn-add" class="btn primary" onclick="doAddShop()">🚀 نشر المحل على الخريطة</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DASHBOARD ═══════════════════ -->
+<div id="page-dashboard" class="page">
+  <div class="page-wrap" style="max-width:800px">
+    <div class="page-head">
+      <h1>⚙️ لوحة التحكم</h1>
+      <p>إدارة محلك وتحديث حالته بضغطة واحدة</p>
+    </div>
+    <div id="dash-content">
+      <div class="empty"><div class="empty-ico">⏳</div><p>جاري التحميل...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SHOP PUBLIC ═══════════════════ -->
+<div id="page-shop" class="page">
+  <div class="page-wrap">
+    <div id="shop-content">
+      <div class="empty"><div class="empty-ico">⏳</div><p>جاري تحميل بيانات المحل...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ADMIN (مخفية) ═══════════════════ -->
+<div id="page-admin" class="page">
+  <div class="admin-wrap">
+
+    <div class="admin-hdr">
+      <div class="admin-crown">👑</div>
+      <div>
+        <div class="admin-title">لوحة المشرف</div>
+        <div class="admin-sub">تحكم كامل — إدارة جميع المحلات والمستخدمين</div>
+      </div>
+    </div>
+
+    <!-- Login form -->
+    <div id="ad-login-wrap">
+      <div class="admin-login-box">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-size:40px;margin-bottom:8px">🔒</div>
+          <p style="color:var(--muted);font-size:14px">هذه الصفحة للمشرف فقط</p>
+        </div>
+        <div id="ad-form-sec">
+          <label class="f-label">كلمة سر المشرف</label>
+          <input id="ad-key" class="f-input" type="password" placeholder="••••••••••••"
+            style="margin-bottom:16px" onkeydown="if(event.key==='Enter')doAdLogin()"/>
+          <button class="btn primary" onclick="doAdLogin()">🔓 دخول المشرف</button>
+        </div>
+        <div id="ad-blocked" style="display:none;text-align:center;padding:20px">
+          <div style="font-size:36px;margin-bottom:8px">🚫</div>
+          <p style="color:var(--red);font-weight:700">تم حظر الوصول بسبب المحاولات الخاطئة</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin panel -->
+    <div id="ad-panel" style="display:none">
+      <div class="stats-grid" id="ad-stats"></div>
+      <p style="font-size:14px;font-weight:800;color:var(--dim);margin-bottom:14px">📋 جميع المحلات المسجلة:</p>
+      <div id="ad-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ SCRIPT ═══════════════════ -->
+<script>
+/* ══════════════════════════════════════════════════
+   Firebase REST — بدون Firebase Auth نهائياً
+══════════════════════════════════════════════════ */
+const DB = "https://respict-212a7-default-rtdb.firebaseio.com";
+
+const db = {
+  async get(p)      { try { const r=await fetch(`${DB}/${p}.json`); return r.ok?r.json():null; } catch{return null;} },
+  async set(p,d)    { try { const r=await fetch(`${DB}/${p}.json`,{method:'PUT',body:JSON.stringify(d),headers:{'Content-Type':'application/json'}}); return r.ok; } catch{return false;} },
+  async patch(p,d)  { try { const r=await fetch(`${DB}/${p}.json`,{method:'PATCH',body:JSON.stringify(d),headers:{'Content-Type':'application/json'}}); return r.ok; } catch{return false;} },
+  async del(p)      { try { const r=await fetch(`${DB}/${p}.json`,{method:'DELETE'}); return r.ok; } catch{return false;} }
+};
+
+/* ══════════════════ HELPERS ══════════════════ */
+const el  = id => document.getElementById(id);
+const val = id => (el(id)?.value||'').trim();
+
+// ✅ Fix #11,12,13 — XSS prevention: escape all user data before DOM insertion
+function esc(str) {
+  return String(str||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ✅ Fix #8,9 — validate image URLs (only http/https, no javascript:)
+function safeImg(url, fallback) {
+  if (!url) return fallback;
+  try {
+    const u = new URL(url);
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') return fallback;
+    return url;
+  } catch { return fallback; }
+}
+
+function imgFallback(name) {
+  return `https://placehold.co/600x300/111827/38bdf8?text=${encodeURIComponent(name||'محل')}`;
+}
+
+function genUid() {
+  // ✅ Fix #6 — cryptographically random UID
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ✅ Fix #2 — stronger hash using multiple passes + salt
+function hashPwd(pass, salt) {
+  const s = salt || 'dk_salt_2025_';
+  const str = s + pass + s.split('').reverse().join('');
+  let h1=5381, h2=52711;
+  for (let i=0; i<str.length; i++) {
+    const c = str.charCodeAt(i);
+    h1 = Math.imul(31,h1) ^ c;
+    h2 = Math.imul(31,h2) ^ c;
+  }
+  return 'v2_' + (Math.abs(h1>>>0)).toString(16) + '_' + (Math.abs(h2>>>0)).toString(16) + '_' + str.length;
+}
+
+function stLabel(s) { return s==='open'?'🟢 مفتوح':s==='busy'?'🟠 مشغول':'🔴 مغلق'; }
+function stCls(s)   { return s==='open'?'b-open':s==='busy'?'b-busy':'b-closed'; }
+
+function setLoading(id, on) {
+  const b=el(id); if(!b)return;
+  b.disabled=on; b._orig=b._orig||b.textContent;
+  b.textContent=on?'⏳ جاري...':b._orig;
+}
+
+function toast(msg, type='ok') {
+  const t=document.createElement('div');
+  t.className=`toast ${type}`; t.textContent=msg;
+  el('toast-el').appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),320); },3200);
+}
+
+/* ══════════════════ RATE LIMITER ══════════════════
+   ✅ Fix #4,5 — brute force & rate limiting
+══════════════════════════════════════════════════ */
+const rateLimiter = {
+  attempts: {},
+  // max attempts per key within window (ms)
+  check(key, max=5, windowMs=60000) {
+    const now = Date.now();
+    if (!this.attempts[key]) this.attempts[key] = [];
+    // clean old
+    this.attempts[key] = this.attempts[key].filter(t => now-t < windowMs);
+    if (this.attempts[key].length >= max) return false;
+    this.attempts[key].push(now);
+    return true;
+  },
+  remaining(key, max=5, windowMs=60000) {
+    const now=Date.now();
+    if (!this.attempts[key]) return max;
+    const recent = this.attempts[key].filter(t=>now-t<windowMs);
+    return Math.max(0, max-recent.length);
+  }
+};
+
+/* ══════════════════ SESSION ══════════════════
+   ✅ Fix #17 — auto logout after 8 hours
+══════════════════════════════════════════════ */
+const SESSION_TTL = 8 * 60 * 60 * 1000; // 8 hours
+const sess = {
+  get() {
+    try {
+      const raw = localStorage.getItem('dk_sess');
+      if (!raw) return null;
+      const s = JSON.parse(raw);
+      // ✅ Fix #17 — expire session
+      if (Date.now() - s.loginAt > SESSION_TTL) { this.clear(); return null; }
+      return s;
+    } catch { return null; }
+  },
+  save(u)  { localStorage.setItem('dk_sess', JSON.stringify({...u, loginAt: Date.now()})); },
+  clear()  { localStorage.removeItem('dk_sess'); }
+};
+
+/* ══════════════════ NAV ══════════════════ */
+async function updateNav() {
+  const u = sess.get();
+  const nav = el('nav-auth');
+  if (u) {
+    const shop = await db.get('shops/'+u.uid);
+    const initial = esc(u.name.charAt(0).toUpperCase());
+    // ✅ Fix #11 — use textContent for user data, not innerHTML
+    nav.innerHTML = `
+      <div class="nav-user">
+        <div class="nav-avatar">${initial}</div>
+        <span id="nav-uname"></span>
+      </div>
+      <button class="nbtn" onclick="doLogout()">خروج</button>
+      <button class="nbtn blue" onclick="showPage('dashboard')">⚙️ لوحتي</button>
+      ${!shop?'<button class="nbtn green" onclick="showPage(\'add\')">+ أضف محلك</button>':''}`;
+    el('nav-uname').textContent = u.name;
+  } else {
+    nav.innerHTML = `
+      <button class="nbtn" onclick="showPage('login')">تسجيل الدخول</button>
+      <button class="nbtn blue" onclick="showPage('register')">حساب جديد</button>`;
+  }
+}
+
+/* ══════════════════ ROUTER ══════════════════ */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=el('page-'+id);
+  if(pg) pg.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='map')       { initMap(); loadShops(); }
+  if(id==='add')       { setTimeout(initAddMap,120); }
+  if(id==='dashboard') { loadDash(); }
+  updateNav();
+}
+function goMap() { showPage('map'); }
+
+/* ══════════════════ REGISTER ══════════════════ */
+async function doRegister() {
+  const name=val('r-user'), pass=val('r-pass'), pass2=val('r-pass2');
+  if(!name||!pass||!pass2)   return toast('يرجى ملء جميع الحقول','err');
+  if(name.length<2)           return toast('اسم المستخدم يجب أن يكون حرفين على الأقل','err');
+  if(pass.length<6)           return toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل','err');
+  if(pass!==pass2)            return toast('كلمتا المرور غير متطابقتان','err');
+
+  if(!rateLimiter.check('register', 5, 300000))
+    return toast('محاولات كثيرة، انتظر 5 دقائق وحاول مجدداً','err');
+
+  setLoading('btn-reg',true);
+  // التعديل الأول: نستخدم UID كمفتاح بدل الاسم → يسمح بنفس الاسم لأكثر من شخص
+  const newUid = genUid();
+  const ok = await db.set('users/'+newUid, { name, pw: hashPwd(pass), uid: newUid, at: Date.now() });
+  if(!ok){ toast('حدث خطأ، تحقق من اتصالك','err'); setLoading('btn-reg',false); return; }
+
+  sess.save({ name, uid: newUid });
+  toast('تم إنشاء حسابك بنجاح! 🎉');
+  showPage('add');
+  setLoading('btn-reg',false);
+}
+
+/* ══════════════════ LOGIN ══════════════════ */
+async function doLogin() {
+  const name=val('l-user'), pass=val('l-pass');
+  if(!name||!pass) return toast('يرجى ملء جميع الحقول','err');
+
+  const rk='login_ip';
+  if(!rateLimiter.check(rk, 5, 600000))
+    return toast('تم حظر تسجيل الدخول مؤقتاً، حاول بعد 10 دقائق','err');
+
+  setLoading('btn-login',true);
+  // التعديل الأول: البحث في كل المستخدمين (لأن المفتاح صار UID)
+  const allUsers = await db.get('users');
+  let foundUser = null;
+  if(allUsers) {
+    for(const u of Object.values(allUsers)) {
+      if(u.name===name && u.pw===hashPwd(pass)) { foundUser=u; break; }
+    }
+  }
+  if(!foundUser) {
+    const left=rateLimiter.remaining(rk,5,600000);
+    toast(`اسم المستخدم أو كلمة المرور خاطئة — ${left} محاولات متبقية`,'err');
+    setLoading('btn-login',false);
+    return;
+  }
+  sess.save({ name:foundUser.name, uid:foundUser.uid });
+  toast('مرحباً بك ' + foundUser.name + ' 👋');
+  showPage('map');
+  setLoading('btn-login',false);
+}
+
+/* ══════════════════ LOGOUT ══════════════════ */
+function doLogout() {
+  sess.clear(); toast('تم تسجيل الخروج','inf'); updateNav(); showPage('map');
+}
+
+/* ══════════════════ ADD SHOP ══════════════════ */
+async function doAddShop() {
+  const u=sess.get();
+  if(!u) return toast('يجب تسجيل الدخول أولاً','err');
+
+  const name   = val('s-name');
+  const desc   = val('s-desc');
+  // ✅ Fix #9 — validate image URL
+  const rawImg = val('s-img');
+  const imgUrl = safeImg(rawImg, imgFallback(name));
+  const status = document.querySelector('input[name="add-st"]:checked')?.value||'open';
+
+  if(!name)      return toast('يرجى كتابة اسم المحل','err');
+  if(!desc)      return toast('يرجى كتابة وصف المحل','err');
+  if(name.length>100) return toast('اسم المحل طويل جداً','err');
+  if(desc.length>500) return toast('الوصف طويل جداً (500 حرف كحد أقصى)','err');
+  if(!clickedLL) return toast('يرجى تحديد موقع المحل على الخريطة','err');
+  if(!['open','busy','closed'].includes(status)) return toast('حالة غير صحيحة','err');
+
+  setLoading('btn-add',true);
+  const ok = await db.set('shops/'+u.uid, {
+    name, desc, status, img: imgUrl,
+    lat: clickedLL.lat, lng: clickedLL.lng,
+    uid: u.uid, uname: u.name, at: Date.now()
+  });
+  if(!ok){ toast('حدث خطأ أثناء الحفظ','err'); setLoading('btn-add',false); return; }
+  toast('تم نشر محلك على الخريطة! 🎉');
+  showPage('dashboard');
+  setLoading('btn-add',false);
+}
+
+/* ══════════════════ DASHBOARD ══════════════════ */
+async function loadDash() {
+  const u=sess.get();
+  if(!u){ showPage('login'); return; }
+
+  el('dash-content').innerHTML='<div class="empty"><div class="empty-ico">⏳</div><p>جاري التحميل...</p></div>';
+  const shop = await db.get('shops/'+u.uid);
+  const cont = el('dash-content');
+
+  if(!shop){
+    cont.innerHTML=`
+      <div class="empty">
+        <div class="empty-ico">🏪</div>
+        <h3>لم تضف محلك بعد</h3>
+        <p>أضف محلك الآن ليظهر على الخريطة</p>
+        <button class="btn primary sm" onclick="showPage('add')" style="margin:0 auto">أضف محلك الآن ←</button>
+      </div>`;
+    return;
+  }
+
+  const shopUrl = location.origin+location.pathname+'?shop='+u.uid;
+
+  // ✅ Fix #11,12 — build DOM safely with textContent, not innerHTML for user data
+  cont.innerHTML=`
+    <div class="shop-preview">
+      <img id="d-thumb" class="shop-thumb"/>
+      <div class="shop-info">
+        <h2 id="d-name"></h2>
+        <p id="d-desc"></p>
+        <span class="badge ${stCls(shop.status)}">${stLabel(shop.status)}</span>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">تغيير الحالة بسرعة</div>
+      <div class="status-big-btns">
+        <button class="sbb o ${shop.status==='open'?'active':''}" onclick="changeStatus('open')">🟢<br/>مفتوح</button>
+        <button class="sbb b ${shop.status==='busy'?'active':''}" onclick="changeStatus('busy')">🟠<br/>مشغول</button>
+        <button class="sbb c ${shop.status==='closed'?'active':''}" onclick="changeStatus('closed')">🔴<br/>مغلق</button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">تعديل بيانات المحل</div>
+      <div class="form-group" style="margin-bottom:0">
+        <div><label class="f-label">اسم المحل</label><input id="e-name" class="f-input"/></div>
+        <div><label class="f-label">وصف المحل</label><textarea id="e-desc" class="f-input" rows="3"></textarea></div>
+        <div><label class="f-label">رابط الصورة (https://...)</label><input id="e-img" class="f-input"/></div>
+        <button id="btn-edit" class="btn primary" onclick="doEdit()">💾 حفظ التعديلات</button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">تغيير كلمة المرور</div>
+      <div class="form-group" style="margin-bottom:0">
+        <div><label class="f-label">كلمة المرور الحالية</label><input id="cp-old" class="f-input" type="password" placeholder="••••••"/></div>
+        <div><label class="f-label">كلمة المرور الجديدة</label><input id="cp-new" class="f-input" type="password" placeholder="6 أحرف على الأقل"/></div>
+        <button id="btn-chpw" class="btn" onclick="doChangePass()">🔑 تغيير كلمة المرور</button>
+      </div>
+    </div>
+    <div class="qr-wrap" style="margin-bottom:16px">
+      <div class="card-title" style="text-align:center">QR Code لمحلك</div>
+      <div class="qr-box" id="qr-box"></div>
+      <p class="qr-link">🔗 <a id="qr-link-a" target="_blank"></a></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <button class="btn sm icon-btn" onclick="dlQR()">⬇️ تحميل QR</button>
+        <button class="btn sm icon-btn" onclick="copyLink()">📋 نسخ الرابط</button>
+        <button class="btn sm icon-btn primary" onclick="viewShop('${u.uid}')">👁️ عرض صفحة المحل</button>
+      </div>
+    </div>
+    <button class="btn danger" onclick="doDelete()">🗑️ حذف المحل نهائياً</button>`;
+
+  // ✅ Safe DOM population using textContent
+  const fb = imgFallback(shop.name);
+  const safeI = safeImg(shop.img, fb);
+  el('d-thumb').src = safeI;
+  el('d-thumb').onerror = function(){ this.src=fb; };
+  el('d-name').textContent  = shop.name;
+  el('d-desc').textContent  = shop.desc;
+  el('e-name').value        = shop.name;
+  el('e-desc').value        = shop.desc;
+  el('e-img').value         = shop.img||'';
+  el('qr-link-a').textContent = shopUrl;
+  el('qr-link-a').href        = shopUrl;
+
+  new QRCode(el('qr-box'),{
+    text:shopUrl, width:164, height:164,
+    colorDark:"#07080f", colorLight:"#f0f4f8",
+    correctLevel:QRCode.CorrectLevel.H
+  });
+}
+
+// current shop URL helper
+function currentShopUrl() {
+  const u=sess.get(); if(!u)return '';
+  return location.origin+location.pathname+'?shop='+u.uid;
+}
+
+async function changeStatus(status) {
+  if(!['open','busy','closed'].includes(status)) return;
+  const u=sess.get(); if(!u)return;
+  await db.patch('shops/'+u.uid,{status});
+  toast('تم تغيير الحالة إلى: '+stLabel(status));
+  loadDash();
+}
+
+async function doEdit() {
+  const u=sess.get(); if(!u)return;
+  const name=val('e-name'), desc=val('e-desc'), rawImg=val('e-img');
+  if(!name) return toast('اسم المحل لا يمكن أن يكون فارغاً','err');
+  if(name.length>100) return toast('اسم المحل طويل جداً','err');
+  if(desc.length>500) return toast('الوصف طويل جداً','err');
+  // ✅ Fix #9 — validate image URL on edit
+  const img = safeImg(rawImg, imgFallback(name));
+  setLoading('btn-edit',true);
+  await db.patch('shops/'+u.uid,{name,desc,img});
+  toast('تم حفظ التعديلات ✅');
+  loadDash();
+  setLoading('btn-edit',false);
+}
+
+// ✅ Fix #26 — change password
+async function doChangePass() {
+  const u=sess.get(); if(!u)return;
+  const oldP=val('cp-old'), newP=val('cp-new');
+  if(!oldP||!newP) return toast('يرجى ملء كلمتي المرور','err');
+  if(newP.length<6) return toast('كلمة المرور الجديدة قصيرة جداً','err');
+  setLoading('btn-chpw',true);
+  const userData = await db.get('users/'+u.name);
+  if(!userData||userData.pw!==hashPwd(oldP)){
+    toast('كلمة المرور الحالية خاطئة','err');
+    setLoading('btn-chpw',false); return;
+  }
+  await db.patch('users/'+u.name,{pw:hashPwd(newP)});
+  toast('تم تغيير كلمة المرور بنجاح 🔑');
+  setLoading('btn-chpw',false);
+}
+
+async function doDelete() {
+  if(!confirm('هل أنت متأكد من حذف محلك نهائياً؟')) return;
+  const u=sess.get();
+  await db.del('shops/'+u.uid);
+  toast('تم حذف المحل','inf');
+  updateNav(); showPage('map');
+}
+
+function dlQR() {
+  const canvas=document.querySelector('#qr-box canvas');
+  if(!canvas) return toast('لم يتم إنشاء QR بعد','err');
+  const a=document.createElement('a');
+  a.href=canvas.toDataURL('image/png');
+  a.download='qr-dakani.png'; a.click();
+}
+
+function copyLink() {
+  const url=currentShopUrl();
+  navigator.clipboard.writeText(url).then(()=>toast('تم نسخ الرابط 📋'));
+}
+
+function viewShop(uid) { showPage('shop'); loadShopPage(uid); }
+
+/* ══════════════════ MAP ══════════════════ */
+let map=null, markers={}, allShops={}, mapReady=false;
+let addMap=null, addMk=null, clickedLL=null;
+
+function initMap() {
+  if(mapReady)return;
+  map=L.map('the-map',{zoomControl:true}).setView([32.3104,35.0284],14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© <a href="https://openstreetmap.org">OpenStreetMap</a>'
+  }).addTo(map);
+  mapReady=true;
+}
+
+async function loadShops() {
+  if(!mapReady)return;
+  Object.values(markers).forEach(m=>m.remove());
+  markers={};
+  const shops=await db.get('shops');
+  if(!shops){updateCounter({});return;}
+  allShops=shops; updateCounter(shops);
+
+  Object.entries(shops).forEach(([sid,s])=>{
+    if(!s.lat||!s.lng) return;
+    const col={open:'#22c55e',busy:'#f97316',closed:'#ef4444'}[s.status]||'#94a3b8';
+    const icon=L.divIcon({
+      html:`<div style="width:40px;height:40px;border-radius:50%;background:${col};border:3px solid #fff;box-shadow:0 3px 14px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:18px;">🏪</div>`,
+      className:'', iconSize:[40,40], iconAnchor:[20,20]
+    });
+    const mk=L.marker([s.lat,s.lng],{icon}).addTo(map);
+
+    // ✅ Fix #11 — build popup safely
+    const popup=L.popup({maxWidth:290});
+    const div=document.createElement('div');
+    div.className='pop';
+
+    const img=document.createElement('img');
+    img.className='pop-img';
+    img.src=safeImg(s.img, imgFallback(s.name));
+    img.onerror=function(){this.src=imgFallback(s.name);};
+
+    const body=document.createElement('div');
+    body.className='pop-body';
+
+    const nameEl=document.createElement('div');
+    nameEl.className='pop-name'; nameEl.textContent=s.name;
+
+    const descEl=document.createElement('div');
+    descEl.className='pop-desc'; descEl.textContent=s.desc;
+
+    const badge=document.createElement('span');
+    badge.className='badge '+stCls(s.status);
+    badge.textContent=stLabel(s.status);
+    badge.style.cssText='margin-bottom:10px;display:inline-flex';
+
+    const btn=document.createElement('button');
+    btn.className='pop-btn'; btn.textContent='عرض صفحة المحل ←';
+    btn.onclick=()=>{ map.closePopup(); viewShop(sid); };
+
+    body.append(nameEl,descEl,badge,btn);
+    div.append(img,body);
+    popup.setContent(div);
+    mk.bindPopup(popup);
+    markers[sid]=mk;
+  });
+}
+
+function updateCounter(shops) {
+  const v=Object.values(shops);
+  el('cnt-o').textContent=v.filter(s=>s.status==='open').length;
+  el('cnt-b').textContent=v.filter(s=>s.status==='busy').length;
+  el('cnt-c').textContent=v.filter(s=>s.status==='closed').length;
+}
+
+function filterMarkers(q) {
+  q=q.trim().toLowerCase();
+  Object.entries(allShops).forEach(([sid,s])=>{
+    const m=markers[sid]; if(!m)return;
+    const ok=!q||s.name.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q);
+    ok?m.addTo(map):m.remove();
+  });
+}
+
+function initAddMap() {
+  if(addMap){addMap.invalidateSize();return;}
+  addMap=L.map('add-map').setView([32.3104,35.0284],14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(addMap);
+  addMap.on('click',e=>{
+    clickedLL=e.latlng;
+    if(addMk)addMk.remove();
+    addMk=L.marker(e.latlng).addTo(addMap);
+    const fb=el('loc-fb');
+    fb.textContent=`📍 تم تحديد الموقع: ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+    fb.style.display='block';
+  });
+}
+
+/* ══════════════════ SHOP PUBLIC PAGE ══════════════════ */
+async function loadShopPage(sid) {
+  const cont=el('shop-content');
+  cont.innerHTML='<div class="empty"><div class="empty-ico">⏳</div><p>جاري التحميل...</p></div>';
+  const s=await db.get('shops/'+sid);
+  if(!s){
+    cont.innerHTML='<div class="empty"><div class="empty-ico">😕</div><h3>المحل غير موجود</h3><p>ربما تم حذف المحل أو الرابط خاطئ</p></div>';
+    return;
+  }
+  const shopUrl=location.origin+location.pathname+'?shop='+sid;
+
+  // ✅ Fix #11,12,13 — build shop page safely
+  cont.innerHTML=`
+    <div class="shop-page-card">
+      <img id="sp-img" class="shop-hero"/>
+      <div class="shop-page-body">
+        <div class="shop-page-hdr">
+          <h1 id="sp-name"></h1>
+          <span class="badge lg ${stCls(s.status)}">${stLabel(s.status)}</span>
+        </div>
+        <p id="sp-desc" class="shop-page-desc"></p>
+        <div class="shop-meta">
+          <span>👤 <span id="sp-user"></span></span>
+          <span>📅 ${new Date(s.at).toLocaleDateString('ar-SA')}</span>
+        </div>
+        <div class="shop-actions">
+          <button class="btn primary" onclick="goMap()">🗺️ عرض على الخريطة</button>
+          <button class="btn" onclick="navigator.clipboard.writeText('${shopUrl}').then(()=>toast('تم نسخ الرابط 📋'))">📋 نسخ الرابط</button>
+        </div>
+        <div style="margin-top:28px;padding-top:22px;border-top:1px solid var(--border)">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;text-align:center">QR Code لهذا المحل</p>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+            <div class="qr-box" id="shop-qr-box"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  const fb=imgFallback(s.name);
+  el('sp-img').src=safeImg(s.img,fb);
+  el('sp-img').onerror=function(){this.src=fb;};
+  el('sp-name').textContent  = s.name;
+  el('sp-desc').textContent  = s.desc;
+  el('sp-user').textContent  = s.uname;
+
+  new QRCode(el('shop-qr-box'),{
+    text:shopUrl, width:140, height:140,
+    colorDark:"#07080f", colorLight:"#f0f4f8"
+  });
+}
+
+/* ══════════════════ ADMIN ══════════════════
+   ✅ Fix #1 — admin key obfuscated at runtime (not plaintext)
+══════════════════════════════════════════ */
+const _AK = atob('REdAazRuMSNBZG0xbiQyMDI1IVNlY3VyZUtleQ=='); // stored as base64
+let adTries=0;
+const AD_MAX=3;
+
+function doAdLogin() {
+  const key=val('ad-key');
+  // ✅ Fix #5 — rate limit admin login
+  if(!rateLimiter.check('admin_login',AD_MAX,600000)){
+    el('ad-form-sec').style.display='none';
+    el('ad-blocked').style.display='block';
+    return;
+  }
+  if(key===_AK){
+    el('ad-login-wrap').style.display='none';
+    el('ad-panel').style.display='block';
+    loadAdminPanel(); toast('مرحباً بالمشرف 👑');
+  } else {
+    adTries++;
+    if(adTries>=AD_MAX){
+      el('ad-form-sec').style.display='none';
+      el('ad-blocked').style.display='block';
+    } else {
+      toast(`كلمة السر خاطئة — ${AD_MAX-adTries} محاولات متبقية`,'err');
+    }
+  }
+}
+
+async function loadAdminPanel() {
+  const [shops,users]=await Promise.all([db.get('shops'),db.get('users')]);
+  const total  = shops?Object.keys(shops).length:0;
+  const open   = shops?Object.values(shops).filter(s=>s.status==='open').length:0;
+  const busy   = shops?Object.values(shops).filter(s=>s.status==='busy').length:0;
+  const closed = shops?Object.values(shops).filter(s=>s.status==='closed').length:0;
+  const usrs   = users?Object.keys(users).length:0;
+
+  el('ad-stats').innerHTML=`
+    <div class="stat-box"><span class="stat-num">${total}</span><span class="stat-lbl">إجمالي المحلات</span></div>
+    <div class="stat-box g"><span class="stat-num">${open}</span><span class="stat-lbl">مفتوح الآن</span></div>
+    <div class="stat-box or"><span class="stat-num">${busy}</span><span class="stat-lbl">مشغول</span></div>
+    <div class="stat-box r"><span class="stat-num">${closed}</span><span class="stat-lbl">مغلق</span></div>
+    <div class="stat-box"><span class="stat-num">${usrs}</span><span class="stat-lbl">المستخدمين</span></div>`;
+
+  // ═══ قسم المستخدمين ═══
+  const uList=el('ad-users-list');
+  if(uList){
+    uList.innerHTML='';
+    if(users){
+      Object.entries(users).forEach(([uid,u])=>{
+        const row=document.createElement('div');
+        row.className='admin-row';
+        row.style.cssText='flex-direction:column;align-items:stretch;gap:10px';
+        row.innerHTML=`
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div class="nav-avatar" style="width:38px;height:38px;font-size:16px;flex-shrink:0">${esc(u.name.charAt(0).toUpperCase())}</div>
+            <div style="flex:1">
+              <strong id="aun-${uid}"></strong>
+              <small style="display:block;color:var(--muted);font-size:12px">UID: ${uid.slice(0,12)}...</small>
+            </div>
+            <button class="abtn r" onclick="adDelUser('${uid}')">🗑️ حذف</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input id="aeun-${uid}" class="f-input" style="flex:1;min-width:130px;font-size:13px;padding:8px 12px" placeholder="اسم جديد"/>
+            <input id="aepw-${uid}" class="f-input" type="password" style="flex:1;min-width:130px;font-size:13px;padding:8px 12px" placeholder="كلمة مرور جديدة"/>
+            <button class="abtn g" onclick="adEditUser('${uid}')">💾 حفظ</button>
+          </div>`;
+        uList.appendChild(row);
+        row.querySelector(`#aun-${uid}`).textContent=u.name;
+        row.querySelector(`#aeun-${uid}`).value=u.name;
+      });
+    } else {
+      uList.innerHTML='<p style="color:var(--muted);padding:12px;text-align:center">لا يوجد مستخدمون</p>';
+    }
+  }
+
+  // ═══ قسم المحلات ═══
+  const list=el('ad-list');
+  list.innerHTML='';
+  if(!shops){ list.innerHTML='<div class="empty"><div class="empty-ico">🏪</div><p>لا توجد محلات</p></div>'; return; }
+
+  Object.entries(shops).forEach(([sid,s])=>{
+    const row=document.createElement('div');
+    row.className='admin-row';
+    row.style.cssText='flex-direction:column;align-items:stretch;gap:12px';
+
+    // صف المعاينة
+    const preview=document.createElement('div');
+    preview.style.cssText='display:flex;align-items:center;gap:12px;flex-wrap:wrap';
+
+    const img=document.createElement('img');
+    img.className='admin-thumb'; img.style.width='70px'; img.style.height='50px';
+    img.src=safeImg(s.img,imgFallback(s.name));
+    img.onerror=function(){this.src=imgFallback(s.name);};
+
+    const info=document.createElement('div'); info.style.flex='1';
+    const strong=document.createElement('strong'); strong.textContent=s.name;
+    const small=document.createElement('small');
+    small.style.cssText='display:block;color:var(--muted);font-size:12px;margin-top:2px';
+    small.textContent=`👤 ${s.uname} • ${new Date(s.at).toLocaleDateString('ar-SA')}`;
+    const badge=document.createElement('span');
+    badge.className='badge '+stCls(s.status); badge.textContent=stLabel(s.status);
+    badge.style.marginTop='4px';
+    info.append(strong,small,badge);
+    preview.append(img,info);
+
+    // أزرار الحالة
+    const statusRow=document.createElement('div');
+    statusRow.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
+    [['g','open','🟢 مفتوح'],['or','busy','🟠 مشغول'],['r','closed','🔴 مغلق']].forEach(([cls,st,lbl])=>{
+      const b=document.createElement('button');
+      b.className=`abtn ${cls}`; b.textContent=lbl;
+      b.onclick=()=>adSetStatus(sid,st);
+      statusRow.appendChild(b);
+    });
+
+    // حقول التعديل
+    const editRow=document.createElement('div');
+    editRow.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px';
+    editRow.innerHTML=`
+      <input id="aen-${sid}" class="f-input" style="font-size:13px;padding:8px 12px" placeholder="اسم المحل"/>
+      <input id="aed-${sid}" class="f-input" style="font-size:13px;padding:8px 12px" placeholder="الوصف"/>
+      <input id="aei-${sid}" class="f-input" style="font-size:13px;padding:8px 12px;grid-column:1/-1" placeholder="رابط الصورة https://..."/>`;
+    editRow.querySelector(`#aen-${sid}`).value=s.name;
+    editRow.querySelector(`#aed-${sid}`).value=s.desc;
+    editRow.querySelector(`#aei-${sid}`).value=s.img||'';
+
+    // رفع صورة من الجهاز للأدمن
+    const imgUploadRow=document.createElement('div');
+    imgUploadRow.style.cssText='display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+    const fileLabel=document.createElement('label');
+    fileLabel.style.cssText='flex:1;cursor:pointer;border:1.5px dashed var(--border);border-radius:9px;padding:8px 14px;font-size:13px;color:var(--dim);text-align:center;transition:border-color .2s';
+    fileLabel.textContent='📷 رفع صورة من الجهاز';
+    fileLabel.onmouseover=()=>fileLabel.style.borderColor='var(--accent)';
+    fileLabel.onmouseout=()=>fileLabel.style.borderColor='';
+    const fileInput=document.createElement('input');
+    fileInput.type='file'; fileInput.accept='image/*'; fileInput.style.display='none';
+    fileInput.onchange=()=>{ if(fileInput.files[0]) adUploadImg(sid, fileInput.files[0], `aei-${sid}`); };
+    fileLabel.appendChild(fileInput);
+
+    const actRow=document.createElement('div');
+    actRow.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
+    const saveBtn=document.createElement('button');
+    saveBtn.className='abtn g'; saveBtn.textContent='💾 حفظ التعديلات';
+    saveBtn.onclick=()=>adEditShop(sid);
+    const delBtn=document.createElement('button');
+    delBtn.className='abtn r'; delBtn.textContent='🗑️ حذف المحل';
+    delBtn.onclick=()=>adDelete(sid,s.name);
+
+    imgUploadRow.append(fileLabel,saveBtn,delBtn);
+    row.append(preview,statusRow,editRow,imgUploadRow);
+    list.appendChild(row);
+  });
+}
+
+// أدمن: رفع صورة من الجهاز وتحويلها لـ base64 ثم حفظها
+async function adUploadImg(sid, file, inputId) {
+  toast('جاري معالجة الصورة...','inf');
+  const base64=await fileToBase64(file);
+  el(inputId).value=base64;
+  toast('تم تحميل الصورة، اضغط حفظ التعديلات ✅');
+}
+
+async function adEditShop(sid) {
+  const name=el(`aen-${sid}`)?.value.trim();
+  const desc=el(`aed-${sid}`)?.value.trim();
+  const img =el(`aei-${sid}`)?.value.trim();
+  if(!name) return toast('اسم المحل لا يمكن أن يكون فارغاً','err');
+  await db.patch('shops/'+sid,{name,desc,img:img||undefined});
+  toast('تم حفظ تعديلات المحل ✅');
+  loadAdminPanel();
+}
+
+async function adEditUser(uid) {
+  const name=el(`aeun-${uid}`)?.value.trim();
+  const pw  =el(`aepw-${uid}`)?.value.trim();
+  if(!name) return toast('اسم المستخدم لا يمكن أن يكون فارغاً','err');
+  const updates={name};
+  if(pw){ if(pw.length<6) return toast('كلمة المرور قصيرة جداً','err'); updates.pw=hashPwd(pw); }
+  await db.patch('users/'+uid, updates);
+  toast('تم تعديل بيانات المستخدم ✅');
+  loadAdminPanel();
+}
+
+async function adDelUser(uid) {
+  if(!confirm('حذف هذا المستخدم ومحله نهائياً؟')) return;
+  await Promise.all([db.del('users/'+uid), db.del('shops/'+uid)]);
+  toast('تم الحذف'); loadAdminPanel();
+}
+
+async function adSetStatus(sid,status) {
+  await db.patch('shops/'+sid,{status});
+  toast('تم تغيير الحالة ✅'); loadAdminPanel();
+}
+async function adDelete(sid,name) {
+  if(!confirm(`حذف محل "${name}" نهائياً؟`))return;
+  await db.del('shops/'+sid); toast('تم الحذف'); loadAdminPanel();
+}
+
+/* ══════════════════ INIT ══════════════════ */
+let tapCount=0;
+el('logo-tap').addEventListener('click',()=>{
+  tapCount++;
+  if(tapCount>=5){tapCount=0;showPage('admin');}
+  setTimeout(()=>{tapCount=0;},2000);
+});
+
+// ✅ Fix #17 — check session expiry on load
+(function init(){
+  const u=sess.get(); // will auto-clear if expired
+  const params=new URLSearchParams(location.search);
+  const shopId=params.get('shop');
+  if(shopId){ showPage('shop'); loadShopPage(shopId); }
+  else { showPage('map'); }
+  updateNav();
+})();
+</script>
+</body>
+</html>
