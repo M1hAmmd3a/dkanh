@@ -359,8 +359,17 @@ textarea.f-input{resize:vertical;line-height:1.6;min-height:80px}
   <div class="modal">
     <div style="font-size:36px;text-align:center;margin-bottom:10px">📱</div>
     <div class="modal-title" style="text-align:center">تأكيد رقم الهاتف</div>
-    <div class="modal-sub" style="text-align:center">أدخل الكود المكوّن من 6 أرقام</div>
-    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px" id="otp-boxes"></div>
+    <div class="modal-sub" style="text-align:center">كود التحقق الخاص بك موضح أدناه — انسخه وأدخله في الخانات</div>
+
+    <!-- كود OTP ثابت وظاهر -->
+    <div id="otp-display-box" style="display:none;background:rgba(56,189,248,.1);border:2px dashed var(--accent);border-radius:14px;padding:16px 12px;text-align:center;margin-bottom:16px">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:6px">🔑 كود التحقق (اكتبه في الخانات أدناه)</p>
+      <p id="otp-display-val" style="font-size:34px;font-weight:900;letter-spacing:10px;color:var(--accent);font-family:monospace;direction:ltr"></p>
+      <p style="font-size:11px;color:var(--gold);margin-top:6px">⚠️ هذا الكود للتجربة فقط — في الإصدار الحقيقي سيُرسَل عبر SMS</p>
+    </div>
+
+    <p style="font-size:13px;color:var(--dim);text-align:center;margin-bottom:12px;font-weight:700">أدخل الكود في الخانات هنا ↓</p>
+    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px" id="otp-boxes"></div>
     <p id="otp-hint" style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:14px"></p>
     <div class="modal-btns">
       <button class="btn" onclick="closePhoneModal()">إلغاء</button>
@@ -425,11 +434,20 @@ textarea.f-input{resize:vertical;line-height:1.6;min-height:80px}
           <input id="r-user" class="f-input" placeholder="الاسم الذي سيظهر على المحل"/>
         </div>
         <div>
-          <label class="f-label">رقم الهاتف * (للتحقق)</label>
+          <label class="f-label">🇵🇸 رقم الهاتف الفلسطيني *</label>
           <div style="display:flex;gap:7px">
-            <span style="background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 10px;font-size:13px;white-space:nowrap;color:var(--dim);flex-shrink:0">🇵🇸 +970</span>
+            <span style="background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 10px;font-size:13px;white-space:nowrap;color:var(--dim);flex-shrink:0">+970</span>
             <input id="r-phone" class="f-input" type="tel" placeholder="059XXXXXXX" style="flex:1"/>
           </div>
+          <p class="f-hint">مثال: 0592345678 أو 0522345678</p>
+        </div>
+        <div>
+          <label class="f-label">🇮🇱 رقم الهاتف الإسرائيلي <span style="color:var(--muted);font-weight:500">(اختياري)</span></label>
+          <div style="display:flex;gap:7px">
+            <span style="background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 10px;font-size:13px;white-space:nowrap;color:var(--dim);flex-shrink:0">+972</span>
+            <input id="r-phone2" class="f-input" type="tel" placeholder="05XXXXXXXX" style="flex:1"/>
+          </div>
+          <p class="f-hint" style="color:var(--gold)">⚠️ لو كان رقمك إسرائيلي أيضاً، ضعه هنا حتى يتمكن المشرف من التواصل معك</p>
         </div>
         <div>
           <label class="f-label">كلمة المرور *</label>
@@ -662,28 +680,42 @@ function goMap(){showPage('map')}
 let pendingOTP='',pendingRegData=null;
 
 function sendOTP(){
-  const name=val('r-user'),phone=val('r-phone'),pass=val('r-pass'),pass2=val('r-pass2');
-  if(!name||!phone||!pass||!pass2)return toast('يرجى ملء جميع الحقول','err');
+  const name=val('r-user'),phone=val('r-phone'),phone2=val('r-phone2'),pass=val('r-pass'),pass2=val('r-pass2');
+  if(!name||!phone||!pass||!pass2)return toast('يرجى ملء جميع الحقول الإلزامية','err');
   if(name.length<2)return toast('الاسم قصير جداً','err');
-  if(!/^(05[0-9]{8})$/.test(phone))return toast('رقم الهاتف غير صحيح، مثال: 0592345678','err');
+  // قبول أرقام فلسطينية: 05XXXXXXXX (10 أرقام تبدأ بـ 05)
+  if(!/^05[0-9]{8}$/.test(phone))return toast('رقم الهاتف الفلسطيني غير صحيح\nمثال: 0592345678 أو 0522345678','err');
+  // التحقق من الرقم الإسرائيلي لو تم إدخاله (اختياري)
+  if(phone2&&!/^05[0-9]{8}$/.test(phone2))return toast('رقم الهاتف الإسرائيلي غير صحيح\nمثال: 0521234567','err');
   if(pass.length<6)return toast('كلمة المرور قصيرة جداً','err');
   if(pass!==pass2)return toast('كلمتا المرور غير متطابقتان','err');
   if(!rl.check('otp_send',3,300000))return toast('حاول مجدداً بعد 5 دقائق','err');
   pendingOTP=Math.floor(100000+Math.random()*900000).toString();
-  pendingRegData={name,phone,pass};
-  toast(`📱 كود التحقق: ${pendingOTP} (للتجربة فقط)`,'inf');
+  pendingRegData={name,phone,phone2:phone2||'',pass};
   openPhoneModal(phone);
 }
 
 function openPhoneModal(phone){
-  el('otp-hint').textContent=`أُرسل إلى: +970${phone}`;
+  // عرض الكود ثابتاً داخل الـ modal
+  const displayBox=el('otp-display-box');
+  const displayVal=el('otp-display-val');
+  if(displayBox&&displayVal){
+    displayBox.style.display='block';
+    displayVal.textContent=pendingOTP;
+  }
+  el('otp-hint').textContent=`للرقم: +970${phone}`;
   const boxes=el('otp-boxes');
   boxes.innerHTML='';
   for(let i=0;i<6;i++){
     const inp=document.createElement('input');
     inp.type='text';inp.maxLength=1;inp.inputMode='numeric';inp.className='otp-inp';
-    inp.oninput=e=>{e.target.value=e.target.value.replace(/\D/g,'');if(e.target.value&&inp.nextElementSibling)inp.nextElementSibling.focus()};
-    inp.onkeydown=e=>{if(e.key==='Backspace'&&!e.target.value&&inp.previousElementSibling)inp.previousElementSibling.focus()};
+    inp.oninput=e=>{
+      e.target.value=e.target.value.replace(/\D/g,'');
+      if(e.target.value&&inp.nextElementSibling)inp.nextElementSibling.focus();
+    };
+    inp.onkeydown=e=>{
+      if(e.key==='Backspace'&&!e.target.value&&inp.previousElementSibling)inp.previousElementSibling.focus();
+    };
     boxes.appendChild(inp);
   }
   el('phone-modal').classList.add('show');
@@ -700,17 +732,26 @@ function verifyOTP(){
     el('btn-reg').style.display='block';
     el('btn-send-otp').style.display='none';
     toast('تم التحقق من رقم الهاتف ✅');
-  } else toast('الكود خاطئ، حاول مجدداً','err');
+  } else toast('الكود خاطئ، حاول مجدداً\nانظر الكود في النافذة السابقة','err');
 }
 
 /* ════════════ REGISTER ════════════ */
 async function doRegister(){
   if(!pendingRegData)return toast('يرجى التحقق من رقم الهاتف أولاً','err');
-  const {name,phone,pass}=pendingRegData;
+  const {name,phone,phone2,pass}=pendingRegData;
   if(!rl.check('register',5,300000))return toast('محاولات كثيرة','err');
   setLoading('btn-reg',true);
   const newUid=genUid();
-  const ok=await db.set('pending/'+newUid,{name,phone,pw:hashPwd(pass),uid:newUid,at:Date.now(),status:'waiting'});
+  const data={
+    name,
+    phone,                    // رقم فلسطيني +970
+    phone2:phone2||'',        // رقم إسرائيلي +972 (اختياري)
+    pw:hashPwd(pass),
+    uid:newUid,
+    at:Date.now(),
+    status:'waiting'
+  };
+  const ok=await db.set('pending/'+newUid,data);
   if(!ok){toast('حدث خطأ، تحقق من الاتصال','err');setLoading('btn-reg',false);return}
   toast('تم إرسال طلبك! ستُفعَّل بعد موافقة المشرف 🎉','inf');
   pendingRegData=null;pendingOTP='';
@@ -1178,7 +1219,8 @@ async function loadAdminPanel(){
       const row=document.createElement('div');row.className='pending-row';
       const name=document.createElement('div');name.className='pending-name';name.textContent=p.name;
       const info=document.createElement('div');info.className='pending-info';
-      info.textContent=`📱 +970${p.phone} | 📅 ${new Date(p.at).toLocaleString('ar-SA')}`;
+      const phone2txt=p.phone2?` | 🇮🇱 +972${p.phone2.replace(/^0/,'')}`:'';
+      info.textContent=`🇵🇸 +970${p.phone}${phone2txt} | 📅 ${new Date(p.at).toLocaleString('ar-SA')}`;
       const acts=document.createElement('div');acts.className='pending-acts';
       const acc=document.createElement('button');acc.className='abtn g';acc.textContent='✅ قبول وتفعيل';acc.onclick=()=>approvePending(uid,p);
       const rej=document.createElement('button');rej.className='abtn r';rej.textContent='❌ رفض';rej.onclick=()=>rejectPending(uid,p.name);
@@ -1204,7 +1246,7 @@ async function loadAdminPanel(){
         </div>`;
       row.querySelector(`#uav-${uid}`).textContent=u.name.charAt(0).toUpperCase();
       row.querySelector(`#uname-${uid}`).textContent=u.name;
-      row.querySelector(`#uphone-${uid}`).textContent=u.phone?`📱 +970${u.phone}`:'';
+      row.querySelector(`#uphone-${uid}`).textContent=u.phone?`🇵🇸 +970${u.phone}${u.phone2?' | 🇮🇱 +972'+u.phone2.replace(/^0/,''):''}`:'';
       row.querySelector(`#aeun-${uid}`).value=u.name;
       ul.appendChild(row);
     });
