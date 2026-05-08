@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>دكاني — حالة المحلات في طولكرم</title>
+<title>دليلي — دليل محلات طولكرم</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -340,7 +340,7 @@ textarea.f-input{resize:vertical;line-height:1.6;min-height:80px}
 <nav class="nav">
   <div style="display:flex;align-items:center;gap:8px">
     <div class="logo" id="logo-tap">
-      <span>🏪</span><span class="logo-text">دكاني</span><span class="logo-sub">| طولكرم</span>
+      <span>🏪</span><span class="logo-text">دليلي</span><span class="logo-sub">| طولكرم</span>
     </div>
     <div class="nav-center">
       <button class="nav-link" onclick="goMap()">🗺️ الخريطة</button>
@@ -426,7 +426,7 @@ textarea.f-input{resize:vertical;line-height:1.6;min-height:80px}
   <div class="auth-wrap">
     <div class="auth-box">
       <div class="auth-icon">🏪</div>
-      <h1 class="auth-title">انضم إلى دكاني</h1>
+      <h1 class="auth-title">انضم إلى دليلي</h1>
       <p class="auth-sub">أنشئ حساباً وأضف محلك — يحتاج موافقة المشرف أولاً</p>
       <div class="form-group">
         <div>
@@ -1155,8 +1155,16 @@ async function loadShopPage(sid){
   new QRCode(el('shop-qr-box'),{text:shopUrl,width:130,height:130,colorDark:'#07080f',colorLight:'#f0f4f8'});
 }
 
-/* ════════════ ADMIN ════════════ */
-const _AK=atob('REBrNG4xI0FkbTFuJDIwMjUhU2VjdXJlS2V5');
+/* ════════════════════════════════════════════════════════
+   ADMIN SECURITY
+   - كلمة السر غير موجودة في الكود نهائياً
+   - فقط الهاش المحسوب مخزّن، ولا يمكن عكسه
+   - لتغيير كلمة السر: شغّل hashPwd('كلمتك') في console
+     وغيّر قيمة _AH بالنتيجة
+════════════════════════════════════════════════════════ */
+// هاش كلمة سر المشرف — لا يمكن استخراج الكلمة الأصلية منه
+const _AH='v2_bbe15fa7_11589355';
+
 let adTries=0,adLocked=false,adLockUntil=0,adLoggedIn=false;
 const AD_MAX=3,AD_LOCK=15*60*1000;
 
@@ -1171,8 +1179,8 @@ function doAdLogin(){
     el('ad-lockout-msg').textContent='تم الحظر لمدة 15 دقيقة';return;
   }
   const key=val('ad-key');
-  let match=key.length===_AK.length;
-  if(match)for(let i=0;i<_AK.length;i++)if(key[i]!==_AK[i]){match=false;break}
+  // نقارن hash المدخل بـ hash المخزّن — كلمة السر الأصلية غير موجودة في الكود
+  const match=hashPwd(key)===_AH;
   if(match){
     adLoggedIn=true;adTries=0;
     el('ad-login-wrap').style.display='none';
