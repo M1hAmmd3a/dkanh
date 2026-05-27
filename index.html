@@ -165,6 +165,15 @@
             align-items: center;
             gap: 5px;
         }
+        
+        .info-note {
+            font-size: 0.7rem;
+            color: #4a9eff;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
         .arrow {
             color: #5f8fae;
@@ -185,11 +194,16 @@
             padding: 14px;
             text-align: center;
             border-top: 1px solid #2a3c48;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: #6f8da0;
             display: flex;
             justify-content: center;
             gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-note span:first-child {
+            color: #4a9eff;
         }
 
         /* تنبيه جوجل - عند الضغط يفتح تيليجرام ويب */
@@ -226,27 +240,30 @@
     <div class="header">
         <h1>
             📡 قنوات تيليجرام
-            <span>Telegram Web</span>
+            <span>معاينة عامة</span>
         </h1>
         <div class="sub">
             <i>🇵🇸 طولكرم بلدنا</i>
             <span>✦</span>
-            <i>⚡ اضغط على الاسم يفتح عبر جوجل</i>
+            <i>⚡ بدون تسجيل دخول - معاينة فورية</i>
         </div>
     </div>
 
     <div class="channels-list">
         <!-- 1. المستشار أحمد أبو أياد -->
         <div class="channel-item">
-            <a class="channel-link" href="https://web.telegram.org/k/#@AhmedAbuAyad" target="_blank" rel="noopener noreferrer">
+            <a class="channel-link" href="https://t.me/s/AhmedAbuAyad" target="_blank" rel="noopener noreferrer">
                 <div class="telegram-icon">✈️</div>
                 <div class="info">
                     <div class="channel-name">
                         المستشار أحمد أبو أياد
-                        <span class="badge">قناة</span>
+                        <span class="badge">معاينة عامة</span>
                     </div>
                     <div class="username-hint">
-                        🔗 @AhmedAbuAyad
+                        🔗 t.me/s/AhmedAbuAyad
+                    </div>
+                    <div class="info-note">
+                        ✅ يفتح مباشرة بدون تسجيل دخول
                     </div>
                 </div>
                 <div class="arrow">›</div>
@@ -255,56 +272,58 @@
 
         <!-- 2. شمس المخيم -->
         <div class="channel-item">
-            <a class="channel-link" href="https://web.telegram.org/k/#@ShamsAlMukhayam" target="_blank" rel="noopener noreferrer">
+            <a class="channel-link" href="https://t.me/s/ShamsAlMukhayam" target="_blank" rel="noopener noreferrer">
                 <div class="telegram-icon">☀️</div>
                 <div class="info">
                     <div class="channel-name">
                         شمس المخيم
-                        <span class="badge">قناة</span>
+                        <span class="badge">معاينة عامة</span>
                     </div>
                     <div class="username-hint">
-                        🔗 @ShamsAlMukhayam
+                        🔗 t.me/s/ShamsAlMukhayam
+                    </div>
+                    <div class="info-note">
+                        ✅ يفتح مباشرة بدون تسجيل دخول
                     </div>
                 </div>
                 <div class="arrow">›</div>
             </a>
         </div>
 
-        <!-- 3. طولكرم بلدنا (القناة الأساسية) -->
+        <!-- 3. طولكرم بلدنا -->
         <div class="channel-item">
-            <a class="channel-link" href="https://web.telegram.org/k/#@TulkarmBaladna" target="_blank" rel="noopener noreferrer">
+            <a class="channel-link" href="https://t.me/s/TulkarmBaladna" target="_blank" rel="noopener noreferrer">
                 <div class="telegram-icon">🇵🇸</div>
                 <div class="info">
                     <div class="channel-name">
                         طولكرم بلدنا
-                        <span class="badge">المجتمع</span>
+                        <span class="badge">معاينة عامة</span>
                     </div>
                     <div class="username-hint">
-                        🔗 @TulkarmBaladna
+                        🔗 t.me/s/TulkarmBaladna
+                    </div>
+                    <div class="info-note">
+                        ✅ يفتح مباشرة بدون تسجيل دخول
                     </div>
                 </div>
                 <div class="arrow">›</div>
             </a>
         </div>
-
-        <!-- 4. إضافة اسم إضافي تكريماً لروح المخيم (يمكن تعديله أو استبداله) 
-             لكن حسب طلبك الأسماء : المستشار أحمد أبو أياد - شمس المخيم - طولكرم بلدنا
-             أضفنا الـ 3 الأساسيين، ويمكنك أيضاً إضافة "شمس المخيم" بشكل مؤكد و "أبو أياد" موجود.
-             للتأكد من أن طولكرم بلدنا هو اسم بارز، نضيف رابطاً آخر لطولكرم بشكل تفصيلي
-        -->
-        <!-- ويمكنك إضافة رابط موجه للحساب الشخصي "أبو أياد" إذا كان معرف مختلف لكن استخدمنا الاسم المنطقي -->
         
-        <!-- أضفنا أيضاً قناة داعمة للبلد (اختياري) ولكن لنفس الهوية -->
+        <!-- 4. طولكرم الأخبارية (قناة إضافية) -->
         <div class="channel-item">
-            <a class="channel-link" href="https://web.telegram.org/k/#@TulkarmCity" target="_blank" rel="noopener noreferrer">
+            <a class="channel-link" href="https://t.me/s/TulkarmCity" target="_blank" rel="noopener noreferrer">
                 <div class="telegram-icon">🏙️</div>
                 <div class="info">
                     <div class="channel-name">
                         طولكرم الأخبارية
-                        <span class="badge">مكملة</span>
+                        <span class="badge">معاينة عامة</span>
                     </div>
                     <div class="username-hint">
-                        🔗 @TulkarmCity
+                        🔗 t.me/s/TulkarmCity
+                    </div>
+                    <div class="info-note">
+                        ✅ يفتح مباشرة بدون تسجيل دخول
                     </div>
                 </div>
                 <div class="arrow">›</div>
@@ -313,28 +332,27 @@
     </div>
 
     <div class="footer-note">
-        <span>🔹 افتح عبر متصفح جوجل (Chrome) تلقائي</span>
-        <span>🔹 يتم التوجيه إلى Telegram Web</span>
+        <span>✨ لا يحتاج تسجيل دخول - معاينة فورية</span>
+        <span>🔗 روابط المعاينة العامة t.me/s/...</span>
+        <span>📱 يعمل على جميع المتصفحات</span>
     </div>
 </div>
 
-<!-- نص توضيحي صغير في console لتأكيد أن الروابط تعمل على web.telegram.org -->
 <script>
     (function() {
-        // تعزيز للتأكد من أن كل الروابط تفتح بواسطة google chrome (المتصفح الافتراضي)
-        // ولإضافة إشعار لطيف عند النقر (اختياري)
+        console.log('⭐ تصميم تيليجرام | معاينة عامة - بدون تسجيل دخول');
+        console.log('✅ جميع الروابط تستخدم t.me/s/ لعرض المحتوى مباشرة');
+        
+        // إحصائيات الروابط
         const links = document.querySelectorAll('.channel-link');
-        links.forEach(link => {
-            link.addEventListener('click', function(e) {
-                // لا نمنع الحدث، نسمح بالفتح بشكل طبيعي
-                // لكن نضيف تنبيه غير مزعج للمستخدم (اختياري محبب)
-                let channelName = this.querySelector('.channel-name')?.innerText || 'القناة';
-                console.log(`🚀 جارٍ فتح ${channelName} عبر تيليجرام ويب (Google Chrome)`);
-                // يمكن إظهار رسالة خفيفة كتأكيد (اختياري) لكن ليس ضروري لأن الرابط سيفتح
+        console.log(`📊 عدد القنوات: ${links.length}`);
+        
+        links.forEach((link, index) => {
+            link.addEventListener('click', function() {
+                const channelName = this.querySelector('.channel-name')?.innerText || 'القناة';
+                console.log(`🚀 فتح: ${channelName} - باستخدام رابط المعاينة العامة`);
             });
         });
-        // تنبيه ترحيبي
-        console.log('⭐ تصميم تيليجرام | قنوات: المستشار أحمد أبو أياد - شمس المخيم - طولكرم بلدنا');
     })();
 </script>
 </body>
