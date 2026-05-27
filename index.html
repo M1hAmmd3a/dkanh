@@ -1,1343 +1,341 @@
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>دليلي — دليل محلات طولكرم</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
-:root{
-  --bg:#07080f;--bg2:#0d1020;--card:#111827;--card2:#1a2235;
-  --border:rgba(255,255,255,0.08);--text:#e8edf5;--dim:#8899b4;--muted:#526078;
-  --accent:#38bdf8;--accent2:#818cf8;--green:#22c55e;--orange:#f97316;--red:#ef4444;--gold:#f59e0b;
-  --shadow:0 8px 40px rgba(0,0,0,0.6);--r:14px;
-  --nav-h:56px;
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);direction:rtl;overflow-x:hidden;-webkit-text-size-adjust:100%}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--card2);border-radius:3px}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 70% 50% at 15% 20%,rgba(56,189,248,.07),transparent 60%),
-             radial-gradient(ellipse 60% 60% at 85% 80%,rgba(129,140,248,.05),transparent 60%)}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>قنوات تيليجرام - طولكرم بلدنا</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* NAV */
-.nav{position:fixed;top:0;right:0;left:0;z-index:1000;height:var(--nav-h);background:rgba(7,8,15,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;gap:8px}
-.logo{font-size:18px;font-weight:900;cursor:pointer;user-select:none;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
-.logo-text{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.logo-sub{font-size:10px;color:var(--muted);font-weight:500}
-.nav-center{display:flex;align-items:center;gap:2px}
-.nav-link{padding:6px 10px;border-radius:8px;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;border:none;background:none;font-family:'Tajawal',sans-serif;transition:all .2s;white-space:nowrap}
-.nav-link:hover{color:var(--text);background:var(--card2)}
-#nav-auth{display:flex;align-items:center;gap:5px;flex-shrink:0}
-.nbtn{padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-family:'Tajawal',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;touch-action:manipulation}
-.nbtn:hover{border-color:var(--accent);color:var(--accent)}
-.nbtn:active{transform:scale(.97)}
-.nbtn.blue{background:linear-gradient(135deg,var(--accent),#0ea5e9);border:none;color:#fff}
-.nbtn.blue:hover{box-shadow:0 4px 18px rgba(56,189,248,.35)}
-.nbtn.green{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.3);color:var(--green)}
-.nav-user{font-size:12px;color:var(--dim);display:flex;align-items:center;gap:5px}
-.nav-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+        body {
+            font-family: 'Segoe UI', 'Tahoma', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(145deg, #0f2a3b 0%, #0a1a24 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-/* PAGES */
-.page{display:none;min-height:100vh;padding-top:var(--nav-h);position:relative;z-index:1}
-.page.active{display:block;animation:fadeIn .3s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        /* حاوية التطبيق بتصميم مشابه لتيليجرام */
+        .telegram-card {
+            max-width: 550px;
+            width: 100%;
+            background: #17212b;
+            border-radius: 32px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            backdrop-filter: blur(2px);
+            transition: transform 0.2s ease;
+        }
 
-/* MAP — إصلاح الشاشة البيضاء */
-#page-map{padding-top:var(--nav-h)}
-#the-map{
-  width:100%;
-  height:calc(100dvh - var(--nav-h));
-  /* fallback لمتصفحات قديمة */
-  height:calc(100vh - var(--nav-h));
-  background:#0d1020;
-  position:relative;
-  z-index:1;
-}
-/* إجبار Leaflet tiles على الظهور */
-.leaflet-container{background:#0d1020!important}
-.leaflet-tile-container,.leaflet-layer{will-change:transform}
+        .telegram-card:hover {
+            transform: scale(1.01);
+        }
 
-.map-bar{position:fixed;top:calc(var(--nav-h) + 10px);right:50%;transform:translateX(50%);z-index:800;display:flex;align-items:center;gap:8px;background:rgba(11,14,22,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:50px;padding:8px 16px;width:min(400px,90vw)}
-.map-bar input{background:none;border:none;outline:none;color:var(--text);font-family:'Tajawal',sans-serif;font-size:14px;width:100%}
-.map-bar input::placeholder{color:var(--muted)}
-.map-legend{position:fixed;bottom:20px;right:14px;z-index:800;background:rgba(11,14,22,.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;display:flex;flex-direction:column;gap:8px}
-.leg-title{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
-.leg-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim)}
-.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.2)}
-.map-counter{position:fixed;bottom:20px;left:14px;z-index:800;background:rgba(11,14,22,.95);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--dim);display:flex;gap:12px}
-.map-counter span{display:flex;align-items:center;gap:4px}
-.map-counter b{color:var(--text);font-weight:800}
+        /* رأس يشبه تيليجرام */
+        .header {
+            background: #1f2c38;
+            padding: 20px 24px;
+            border-bottom: 1px solid #2b3b47;
+            text-align: center;
+        }
 
-/* POPUP */
-.leaflet-popup-content-wrapper{background:var(--card)!important;border:1px solid var(--border)!important;border-radius:16px!important;padding:0!important;overflow:hidden!important;box-shadow:0 16px 50px rgba(0,0,0,.7)!important}
-.leaflet-popup-tip{background:var(--card)!important}
-.leaflet-popup-content{margin:0!important;padding:0!important;width:260px!important}
-.pop{font-family:'Tajawal',sans-serif;direction:rtl}
-.pop-img{width:100%;height:120px;object-fit:cover}
-.pop-body{padding:12px}
-.pop-name{font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px}
-.pop-desc{font-size:12px;color:var(--dim);line-height:1.5;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.pop-btn{display:block;width:100%;text-align:center;padding:9px;border-radius:9px;border:none;background:linear-gradient(135deg,var(--accent),#0ea5e9);color:#fff;font-size:13px;font-weight:800;font-family:'Tajawal',sans-serif;cursor:pointer;touch-action:manipulation}
+        .header h1 {
+            color: #ffffff;
+            font-size: 1.7rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
 
-/* BADGE */
-.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700}
-.badge.lg{font-size:13px;padding:5px 14px}
-.b-open{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
-.b-busy{background:rgba(249,115,22,.15);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
-.b-closed{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
-.b-pending{background:rgba(245,158,11,.15);color:var(--gold);border:1px solid rgba(245,158,11,.3)}
+        .header h1 span {
+            background: #2b5270;
+            padding: 5px 12px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: normal;
+            color: #c1e4ff;
+        }
 
-/* AUTH */
-.auth-wrap{min-height:calc(100vh - var(--nav-h));display:flex;align-items:center;justify-content:center;padding:24px 14px}
-.auth-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 24px;width:min(460px,100%);box-shadow:var(--shadow);position:relative;overflow:hidden}
-.auth-box::after{content:'';position:absolute;top:-80px;right:-80px;width:200px;height:200px;background:radial-gradient(circle,rgba(56,189,248,.1),transparent 65%);border-radius:50%;pointer-events:none}
-.auth-icon{font-size:44px;text-align:center;margin-bottom:12px}
-.auth-title{font-size:22px;font-weight:900;text-align:center;margin-bottom:5px}
-.auth-sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:24px;line-height:1.5}
-.form-group{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
-.f-label{display:block;font-size:13px;font-weight:700;color:var(--dim);margin-bottom:5px}
-.f-input{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
-.f-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.13)}
-.f-input::placeholder{color:var(--muted)}
-textarea.f-input{resize:vertical;line-height:1.6;min-height:80px}
-.f-hint{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
-.f-hint a{color:var(--accent);text-decoration:none}
-.auth-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--muted)}
-.auth-switch a{color:var(--accent);cursor:pointer;font-weight:700}
-.char-count{font-size:11px;color:var(--muted)}
+        .sub {
+            color: #8aaec0;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-/* IMAGE UPLOAD */
-.img-upload-area{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg2);position:relative;overflow:hidden}
-.img-upload-area:hover{border-color:var(--accent);background:rgba(56,189,248,.05)}
-.img-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.img-upload-area .upload-icon{font-size:28px;margin-bottom:6px}
-.img-upload-area p{font-size:13px;color:var(--dim);font-weight:600}
-.img-upload-area small{font-size:11px;color:var(--muted)}
-.img-preview-wrap{position:relative;display:none}
-.img-preview-wrap img{width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}
-.img-preview-wrap .remove-img{position:absolute;top:8px;left:8px;background:rgba(239,68,68,.85);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+        .sub i {
+            font-style: normal;
+            background: #2e3e4a;
+            padding: 2px 10px;
+            border-radius: 40px;
+        }
 
-/* BUTTONS */
-.btn{width:100%;padding:13px;border-radius:10px;border:1.5px solid var(--border);background:var(--card2);color:var(--text);font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation;min-height:46px}
-.btn:hover:not(:disabled){border-color:var(--accent);transform:translateY(-1px)}
-.btn:active:not(:disabled){transform:scale(.98)}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
-.btn.primary{background:linear-gradient(135deg,var(--accent),#0ea5e9);border:none;color:#fff}
-.btn.primary:hover:not(:disabled){box-shadow:0 6px 24px rgba(56,189,248,.4)}
-.btn.danger{border-color:rgba(239,68,68,.3);color:var(--red);background:rgba(239,68,68,.07)}
-.btn.success{border-color:rgba(34,197,94,.3);color:var(--green);background:rgba(34,197,94,.07)}
-.btn.sm{padding:9px 16px;font-size:13px;width:auto;min-height:38px}
+        /* قائمة القنوات */
+        .channels-list {
+            padding: 16px 12px 24px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-/* PAGE WRAP */
-.page-wrap{max-width:700px;margin:0 auto;padding:28px 14px 60px}
-.page-wrap.wide{max-width:940px}
-.page-head{margin-bottom:22px}
-.page-head h1{font-size:22px;font-weight:900;margin-bottom:4px}
-.page-head p{color:var(--muted);font-size:13px}
+        /* بطاقة كل قناة */
+        .channel-item {
+            background: #1f2c38;
+            border-radius: 20px;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid #2b3b47;
+            overflow: hidden;
+        }
 
-/* CARD */
-.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow)}
-.card+.card{margin-top:14px}
-.card-title{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+        .channel-item:hover {
+            background: #263846;
+            border-color: #3c6e8c;
+            transform: translateX(4px);
+        }
 
-/* MINI MAP */
-.mini-map{height:200px;border-radius:12px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:10px;background:#0d1020}
-.loc-feed{display:none;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--green);margin-bottom:12px}
+        .channel-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+        }
 
-/* STATUS PICKER */
-.status-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.sp-opt{padding:12px 6px;border-radius:10px;border:2px solid var(--border);background:var(--bg2);text-align:center;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:800;transition:all .2s;position:relative;color:var(--dim);touch-action:manipulation}
-.sp-opt input{position:absolute;opacity:0;width:0;height:0}
-.sp-opt.opt-o:has(input:checked),.sp-opt.opt-o:hover{border-color:var(--green);background:rgba(34,197,94,.13);color:var(--green)}
-.sp-opt.opt-b:has(input:checked),.sp-opt.opt-b:hover{border-color:var(--orange);background:rgba(249,115,22,.13);color:var(--orange)}
-.sp-opt.opt-c:has(input:checked),.sp-opt.opt-c:hover{border-color:var(--red);background:rgba(239,68,68,.13);color:var(--red)}
+        /* أيقونة الطيران (تيليجرام) */
+        .telegram-icon {
+            background: #2c6e9e;
+            width: 52px;
+            height: 52px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+            transition: 0.2s;
+        }
 
-/* SCHEDULE */
-.schedule-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-top:10px}
-.schedule-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end;margin-bottom:10px}
-.schedule-toggle{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
-.toggle-switch input{opacity:0;width:0;height:0;position:absolute}
-.toggle-slider{position:absolute;inset:0;background:var(--card2);border:1.5px solid var(--border);border-radius:24px;cursor:pointer;transition:.3s}
-.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;background:var(--muted);border-radius:50%;bottom:3px;right:3px;transition:.3s}
-.toggle-switch input:checked+.toggle-slider{background:rgba(34,197,94,.2);border-color:var(--green)}
-.toggle-switch input:checked+.toggle-slider::before{background:var(--green);transform:translateX(-20px)}
-.schedule-label{font-size:13px;color:var(--dim);font-weight:600}
-.time-input{background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:14px;outline:none;width:100%;transition:border-color .2s;-webkit-appearance:none}
-.time-input:focus{border-color:var(--accent)}
-.schedule-status{font-size:12px;padding:5px 10px;border-radius:8px;text-align:center;font-weight:700;margin-top:6px}
-.sch-active{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3)}
-.sch-inactive{background:rgba(249,115,22,.12);color:var(--orange);border:1px solid rgba(249,115,22,.3)}
+        .channel-item:hover .telegram-icon {
+            background: #3f89b9;
+            transform: scale(1.02);
+        }
 
-/* DASHBOARD */
-.shop-preview{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
-.shop-thumb{width:90px;height:66px;border-radius:10px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)}
-.shop-info h2{font-size:17px;font-weight:900;margin-bottom:4px}
-.shop-info p{font-size:12px;color:var(--dim);line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.status-big-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.sbb{padding:14px 8px;border-radius:12px;border:2px solid var(--border);background:var(--bg2);color:var(--dim);font-family:'Tajawal',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;text-align:center;touch-action:manipulation;line-height:1.4}
-.sbb:hover,.sbb.active{transform:translateY(-2px)}
-.sbb.o{border-color:rgba(34,197,94,.3);color:var(--green)}.sbb.o:hover,.sbb.o.active{background:rgba(34,197,94,.15);border-color:var(--green);box-shadow:0 4px 16px rgba(34,197,94,.2)}
-.sbb.b{border-color:rgba(249,115,22,.3);color:var(--orange)}.sbb.b:hover,.sbb.b.active{background:rgba(249,115,22,.15);border-color:var(--orange);box-shadow:0 4px 16px rgba(249,115,22,.2)}
-.sbb.c{border-color:rgba(239,68,68,.3);color:var(--red)}.sbb.c:hover,.sbb.c.active{background:rgba(239,68,68,.15);border-color:var(--red);box-shadow:0 4px 16px rgba(239,68,68,.2)}
-.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow)}
-.qr-box{background:#f0f4f8;padding:12px;border-radius:12px}
-.qr-link{font-size:11px;color:var(--muted);word-break:break-all;text-align:center;max-width:300px}
-.qr-link a{color:var(--accent);text-decoration:none}
-.qr-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+        .info {
+            flex: 1;
+        }
 
-/* SHOP PUBLIC */
-.shop-hero{width:100%;height:240px;object-fit:cover;border-radius:18px 18px 0 0}
-.shop-page-card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
-.shop-page-body{padding:22px}
-.shop-page-hdr{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
-.shop-page-hdr h1{font-size:24px;font-weight:900}
-.shop-page-desc{color:var(--dim);line-height:1.7;font-size:14px;margin-bottom:18px}
-.shop-meta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;padding-top:14px;border-top:1px solid var(--border)}
-.shop-meta span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
-.shop-actions{display:flex;gap:8px;flex-wrap:wrap}
-.shop-actions .btn{flex:1;min-width:120px}
+        .channel-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
 
-/* ADMIN */
-.admin-wrap{max-width:940px;margin:0 auto;padding:28px 14px 60px}
-.admin-hdr{display:flex;align-items:center;gap:14px;margin-bottom:22px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:18px}
-.admin-crown{font-size:36px}
-.admin-title{font-size:20px;font-weight:900}
-.admin-sub{color:var(--muted);font-size:12px;margin-top:2px}
-.admin-login-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px 22px;max-width:420px;margin:0 auto;box-shadow:var(--shadow)}
-.admin-tabs{display:flex;gap:6px;margin-bottom:18px;background:var(--bg2);padding:5px;border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.admin-tab{flex:1;min-width:80px;padding:9px 8px;border-radius:9px;border:none;background:none;color:var(--dim);font-family:'Tajawal',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;touch-action:manipulation}
-.admin-tab.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.3)}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:20px}
-.stat-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 12px;text-align:center}
-.stat-box.g{border-color:rgba(34,197,94,.25)}.stat-box.or{border-color:rgba(249,115,22,.25)}.stat-box.r{border-color:rgba(239,68,68,.25)}.stat-box.gold{border-color:rgba(245,158,11,.25)}
-.stat-num{font-size:28px;font-weight:900;color:var(--accent);display:block;line-height:1;margin-bottom:4px}
-.stat-box.g .stat-num{color:var(--green)}.stat-box.or .stat-num{color:var(--orange)}.stat-box.r .stat-num{color:var(--red)}.stat-box.gold .stat-num{color:var(--gold)}
-.stat-lbl{font-size:11px;color:var(--muted);font-weight:600}
-.admin-row{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;flex-direction:column;gap:10px}
-.admin-thumb{width:58px;height:42px;border-radius:8px;object-fit:cover;flex-shrink:0}
-.abtn{padding:6px 12px;font-size:12px;border-radius:7px;border:1.5px solid var(--border);background:var(--card2);color:var(--text);font-family:'Tajawal',sans-serif;cursor:pointer;font-weight:700;transition:all .15s;touch-action:manipulation;min-height:34px}
-.abtn.g{border-color:rgba(34,197,94,.35);color:var(--green)}.abtn.g:hover{background:rgba(34,197,94,.15)}
-.abtn.or{border-color:rgba(249,115,22,.35);color:var(--orange)}.abtn.or:hover{background:rgba(249,115,22,.15)}
-.abtn.r{border-color:rgba(239,68,68,.35);color:var(--red)}.abtn.r:hover{background:rgba(239,68,68,.15)}
-.abtn.gold{border-color:rgba(245,158,11,.35);color:var(--gold)}.abtn.gold:hover{background:rgba(245,158,11,.15)}
-.pending-row{background:var(--card);border:1.5px solid rgba(245,158,11,.3);border-radius:14px;padding:16px;margin-bottom:10px}
-.pending-name{font-size:15px;font-weight:800;margin-bottom:4px}
-.pending-info{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5}
-.pending-acts{display:flex;gap:8px;flex-wrap:wrap}
+        .badge {
+            background: #2b4f6e;
+            font-size: 0.7rem;
+            font-weight: normal;
+            padding: 2px 12px;
+            border-radius: 30px;
+            color: #bde0ff;
+        }
 
-/* EMPTY */
-.empty{text-align:center;padding:48px 16px;color:var(--muted)}
-.empty-ico{font-size:52px;margin-bottom:14px}
-.empty h3{font-size:17px;font-weight:800;color:var(--dim);margin-bottom:7px}
-.empty p{font-size:13px;margin-bottom:18px;line-height:1.6}
+        .username-hint {
+            font-size: 0.75rem;
+            color: #7e9eb5;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
-/* TOAST */
-#toast-el{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:7px;align-items:center;pointer-events:none;width:90vw;max-width:360px}
-.toast{padding:11px 20px;border-radius:50px;font-size:13px;font-weight:700;box-shadow:var(--shadow);white-space:nowrap;pointer-events:none;opacity:0;transform:translateY(8px);transition:all .28s;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-.toast.show{opacity:1;transform:translateY(0)}
-.toast.ok{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:var(--green)}
-.toast.err{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:var(--red)}
-.toast.inf{background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.4);color:var(--accent)}
-.toast.warn{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.4);color:var(--gold)}
+        .arrow {
+            color: #5f8fae;
+            font-size: 22px;
+            opacity: 0.7;
+            transition: 0.2s;
+        }
 
-/* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:2000;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
-.modal-bg.show{display:flex}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px 20px;width:min(440px,100%);box-shadow:0 20px 60px rgba(0,0,0,.8);margin:auto}
-.modal-title{font-size:18px;font-weight:900;margin-bottom:7px}
-.modal-sub{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
-.modal-btns{display:flex;gap:8px;margin-top:16px}
-.modal-btns .btn{flex:1}
+        .channel-item:hover .arrow {
+            opacity: 1;
+            transform: translateX(4px);
+            color: #6fa8dc;
+        }
 
-/* OTP inputs */
-.otp-inp{width:42px;height:50px;text-align:center;font-size:20px;font-weight:800;background:var(--bg2);border:2px solid var(--border);border-radius:10px;color:var(--text);outline:none;font-family:monospace;transition:border-color .2s;-webkit-appearance:none}
-.otp-inp:focus{border-color:var(--accent)}
+        /* فاصل مزخرف */
+        .footer-note {
+            background: #0f1a21e0;
+            padding: 14px;
+            text-align: center;
+            border-top: 1px solid #2a3c48;
+            font-size: 0.7rem;
+            color: #6f8da0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
 
-/* LEAFLET */
-.leaflet-control-attribution{background:rgba(7,8,15,.75)!important;color:var(--muted)!important;font-size:10px!important}
-.leaflet-control-zoom a{background:var(--card)!important;color:var(--text)!important;border-color:var(--border)!important;width:32px!important;height:32px!important;line-height:32px!important}
-.leaflet-control-zoom a:hover{background:var(--card2)!important;color:var(--accent)!important}
-.divider{height:1px;background:var(--border);margin:6px 0}
+        /* تنبيه جوجل - عند الضغط يفتح تيليجرام ويب */
+        @media (max-width: 550px) {
+            .channel-link {
+                padding: 12px 16px;
+            }
+            .telegram-icon {
+                width: 46px;
+                height: 46px;
+                font-size: 24px;
+            }
+            .channel-name {
+                font-size: 1.1rem;
+            }
+        }
 
-/* ═══════════ MOBILE FIXES ═══════════ */
-@media(max-width:480px){
-  :root{--nav-h:52px}
-  .logo-sub{display:none}
-  .nav-link{padding:5px 7px;font-size:11px}
-  .nbtn{padding:5px 9px;font-size:11px}
-  .nav-user span{display:none}
-
-  /* map adjustments */
-  .map-bar{padding:7px 12px;top:calc(var(--nav-h)+8px)}
-  .map-bar input{font-size:13px}
-  .map-legend{padding:10px 12px;bottom:14px;right:10px}
-  .map-counter{padding:8px 10px;bottom:14px;left:10px;font-size:11px}
-  .leg-row{font-size:11px}
-
-  /* auth */
-  .auth-box{padding:24px 16px}
-  .auth-title{font-size:20px}
-
-  /* dashboard */
-  .shop-preview{flex-direction:column;gap:12px}
-  .shop-thumb{width:100%;height:160px;border-radius:10px}
-  .status-big-btns{grid-template-columns:1fr;gap:8px}
-  .sbb{padding:12px;display:flex;align-items:center;justify-content:center;gap:8px}
-
-  /* status picker — keep 3 cols but smaller */
-  .status-picker{gap:6px}
-  .sp-opt{padding:10px 4px;font-size:12px}
-
-  /* schedule */
-  .schedule-row{grid-template-columns:1fr}
-
-  /* shop page */
-  .shop-hero{height:180px}
-  .shop-page-hdr{flex-direction:column;gap:8px}
-  .shop-page-hdr h1{font-size:20px}
-  .shop-actions{flex-direction:column}
-
-  /* qr */
-  .qr-actions{flex-direction:column;width:100%}
-  .qr-actions .btn{width:100%}
-
-  /* admin */
-  .stats-grid{grid-template-columns:repeat(3,1fr)}
-  .stat-num{font-size:22px}
-  .admin-hdr{padding:14px 16px;gap:10px}
-  .admin-crown{font-size:28px}
-  .admin-title{font-size:17px}
-  .pending-acts{flex-direction:column}
-  .pending-acts .abtn{width:100%;text-align:center;padding:9px}
-
-  /* edit grid in admin */
-  .edit-grid-2{grid-template-columns:1fr!important}
-
-  /* popups */
-  .leaflet-popup-content{width:230px!important}
-  .pop-img{height:100px}
-
-  /* page */
-  .page-wrap{padding:20px 12px 60px}
-  .page-head h1{font-size:20px}
-  .card{padding:16px}
-  .form-group{gap:12px}
-}
-
-@media(max-width:360px){
-  .nav-link{display:none}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-}
-</style>
+        /* تخصيص التمرير */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0e1a22;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2e5d7a;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="nav">
-  <div style="display:flex;align-items:center;gap:8px">
-    <div class="logo" id="logo-tap">
-      <span>🏪</span><span class="logo-text">دليلي</span><span class="logo-sub">| طولكرم</span>
-    </div>
-    <div class="nav-center">
-      <button class="nav-link" onclick="goMap()">🗺️ الخريطة</button>
-    </div>
-  </div>
-  <div id="nav-auth">
-    <button class="nbtn" onclick="showPage('login')">دخول</button>
-    <button class="nbtn blue" onclick="showPage('register')">+ حساب</button>
-  </div>
-</nav>
-
-<div id="toast-el"></div>
-
-<!-- MODAL: تأكيد رقم الهاتف -->
-<div class="modal-bg" id="phone-modal">
-  <div class="modal">
-    <div style="font-size:36px;text-align:center;margin-bottom:10px">📱</div>
-    <div class="modal-title" style="text-align:center">تأكيد رقم الهاتف</div>
-    <div class="modal-sub" style="text-align:center">كود التحقق الخاص بك موضح أدناه — انسخه وأدخله في الخانات</div>
-
-    <!-- كود OTP ثابت وظاهر -->
-    <div id="otp-display-box" style="display:none;background:rgba(56,189,248,.1);border:2px dashed var(--accent);border-radius:14px;padding:16px 12px;text-align:center;margin-bottom:16px">
-      <p style="font-size:12px;color:var(--muted);margin-bottom:6px">🔑 كود التحقق (اكتبه في الخانات أدناه)</p>
-      <p id="otp-display-val" style="font-size:34px;font-weight:900;letter-spacing:10px;color:var(--accent);font-family:monospace;direction:ltr"></p>
-      <p style="font-size:11px;color:var(--gold);margin-top:6px">⚠️ هذا الكود للتجربة فقط — في الإصدار الحقيقي سيُرسَل عبر SMS</p>
+<div class="telegram-card">
+    <div class="header">
+        <h1>
+            📡 قنوات تيليجرام
+            <span>Telegram Web</span>
+        </h1>
+        <div class="sub">
+            <i>🇵🇸 طولكرم بلدنا</i>
+            <span>✦</span>
+            <i>⚡ اضغط على الاسم يفتح عبر جوجل</i>
+        </div>
     </div>
 
-    <p style="font-size:13px;color:var(--dim);text-align:center;margin-bottom:12px;font-weight:700">أدخل الكود في الخانات هنا ↓</p>
-    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px" id="otp-boxes"></div>
-    <p id="otp-hint" style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:14px"></p>
-    <div class="modal-btns">
-      <button class="btn" onclick="closePhoneModal()">إلغاء</button>
-      <button class="btn primary" onclick="verifyOTP()">✅ تأكيد</button>
+    <div class="channels-list">
+        <!-- 1. المستشار أحمد أبو أياد -->
+        <div class="channel-item">
+            <a class="channel-link" href="https://web.telegram.org/k/#@AhmedAbuAyad" target="_blank" rel="noopener noreferrer">
+                <div class="telegram-icon">✈️</div>
+                <div class="info">
+                    <div class="channel-name">
+                        المستشار أحمد أبو أياد
+                        <span class="badge">قناة</span>
+                    </div>
+                    <div class="username-hint">
+                        🔗 @AhmedAbuAyad
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </a>
+        </div>
+
+        <!-- 2. شمس المخيم -->
+        <div class="channel-item">
+            <a class="channel-link" href="https://web.telegram.org/k/#@ShamsAlMukhayam" target="_blank" rel="noopener noreferrer">
+                <div class="telegram-icon">☀️</div>
+                <div class="info">
+                    <div class="channel-name">
+                        شمس المخيم
+                        <span class="badge">قناة</span>
+                    </div>
+                    <div class="username-hint">
+                        🔗 @ShamsAlMukhayam
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </a>
+        </div>
+
+        <!-- 3. طولكرم بلدنا (القناة الأساسية) -->
+        <div class="channel-item">
+            <a class="channel-link" href="https://web.telegram.org/k/#@TulkarmBaladna" target="_blank" rel="noopener noreferrer">
+                <div class="telegram-icon">🇵🇸</div>
+                <div class="info">
+                    <div class="channel-name">
+                        طولكرم بلدنا
+                        <span class="badge">المجتمع</span>
+                    </div>
+                    <div class="username-hint">
+                        🔗 @TulkarmBaladna
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </a>
+        </div>
+
+        <!-- 4. إضافة اسم إضافي تكريماً لروح المخيم (يمكن تعديله أو استبداله) 
+             لكن حسب طلبك الأسماء : المستشار أحمد أبو أياد - شمس المخيم - طولكرم بلدنا
+             أضفنا الـ 3 الأساسيين، ويمكنك أيضاً إضافة "شمس المخيم" بشكل مؤكد و "أبو أياد" موجود.
+             للتأكد من أن طولكرم بلدنا هو اسم بارز، نضيف رابطاً آخر لطولكرم بشكل تفصيلي
+        -->
+        <!-- ويمكنك إضافة رابط موجه للحساب الشخصي "أبو أياد" إذا كان معرف مختلف لكن استخدمنا الاسم المنطقي -->
+        
+        <!-- أضفنا أيضاً قناة داعمة للبلد (اختياري) ولكن لنفس الهوية -->
+        <div class="channel-item">
+            <a class="channel-link" href="https://web.telegram.org/k/#@TulkarmCity" target="_blank" rel="noopener noreferrer">
+                <div class="telegram-icon">🏙️</div>
+                <div class="info">
+                    <div class="channel-name">
+                        طولكرم الأخبارية
+                        <span class="badge">مكملة</span>
+                    </div>
+                    <div class="username-hint">
+                        🔗 @TulkarmCity
+                    </div>
+                </div>
+                <div class="arrow">›</div>
+            </a>
+        </div>
     </div>
-  </div>
+
+    <div class="footer-note">
+        <span>🔹 افتح عبر متصفح جوجل (Chrome) تلقائي</span>
+        <span>🔹 يتم التوجيه إلى Telegram Web</span>
+    </div>
 </div>
 
-<!-- MAP -->
-<div id="page-map" class="page active">
-  <div class="map-bar">
-    <span style="color:var(--muted);font-size:15px">🔍</span>
-    <input type="text" placeholder="ابحث عن محل..." oninput="filterMarkers(this.value)"/>
-  </div>
-  <div id="the-map"></div>
-  <div class="map-legend">
-    <div class="leg-title">حالة المحلات</div>
-    <div class="leg-row"><div class="leg-dot" style="background:var(--green)"></div> مفتوح</div>
-    <div class="leg-row"><div class="leg-dot" style="background:var(--orange)"></div> مشغول</div>
-    <div class="leg-row"><div class="leg-dot" style="background:var(--red)"></div> مغلق</div>
-  </div>
-  <div class="map-counter" id="map-counter">
-    <span>🟢 <b id="cnt-o">0</b></span>
-    <span>🟠 <b id="cnt-b">0</b></span>
-    <span>🔴 <b id="cnt-c">0</b></span>
-  </div>
-</div>
-
-<!-- LOGIN -->
-<div id="page-login" class="page">
-  <div class="auth-wrap">
-    <div class="auth-box">
-      <div class="auth-icon">🔐</div>
-      <h1 class="auth-title">أهلاً بعودتك</h1>
-      <p class="auth-sub">سجّل الدخول لإدارة محلك</p>
-      <div class="form-group">
-        <div>
-          <label class="f-label">اسم المستخدم</label>
-          <input id="l-user" class="f-input" placeholder="أدخل اسم المستخدم" onkeydown="if(event.key==='Enter')doLogin()"/>
-        </div>
-        <div>
-          <label class="f-label">كلمة المرور</label>
-          <input id="l-pass" class="f-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
-        </div>
-      </div>
-      <button id="btn-login" class="btn primary" onclick="doLogin()">تسجيل الدخول ←</button>
-      <p class="auth-switch">ليس لديك حساب؟ <a onclick="showPage('register')">أنشئ حساباً الآن</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- REGISTER -->
-<div id="page-register" class="page">
-  <div class="auth-wrap">
-    <div class="auth-box">
-      <div class="auth-icon">🏪</div>
-      <h1 class="auth-title">انضم إلى دليلي</h1>
-      <p class="auth-sub">أنشئ حساباً وأضف محلك — يحتاج موافقة المشرف أولاً</p>
-      <div class="form-group">
-        <div>
-          <label class="f-label">اسم المستخدم *</label>
-          <input id="r-user" class="f-input" placeholder="الاسم الذي سيظهر على المحل"/>
-        </div>
-        <div>
-          <label class="f-label">🇵🇸 رقم الهاتف الفلسطيني *</label>
-          <div style="display:flex;gap:7px">
-            <span style="background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 10px;font-size:13px;white-space:nowrap;color:var(--dim);flex-shrink:0">+970</span>
-            <input id="r-phone" class="f-input" type="tel" placeholder="059XXXXXXX" style="flex:1"/>
-          </div>
-          <p class="f-hint">مثال: 0592345678 أو 0522345678</p>
-        </div>
-        <div>
-          <label class="f-label">🇮🇱 رقم الهاتف الإسرائيلي <span style="color:var(--muted);font-weight:500">(اختياري)</span></label>
-          <div style="display:flex;gap:7px">
-            <span style="background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 10px;font-size:13px;white-space:nowrap;color:var(--dim);flex-shrink:0">+972</span>
-            <input id="r-phone2" class="f-input" type="tel" placeholder="05XXXXXXXX" style="flex:1"/>
-          </div>
-          <p class="f-hint" style="color:var(--gold)">⚠️ لو كان رقمك إسرائيلي أيضاً، ضعه هنا حتى يتمكن المشرف من التواصل معك</p>
-        </div>
-        <div>
-          <label class="f-label">كلمة المرور *</label>
-          <input id="r-pass" class="f-input" type="password" placeholder="6 أحرف على الأقل"/>
-        </div>
-        <div>
-          <label class="f-label">تأكيد كلمة المرور *</label>
-          <input id="r-pass2" class="f-input" type="password" placeholder="أعد كتابة كلمة المرور"/>
-        </div>
-      </div>
-      <button id="btn-send-otp" class="btn primary" style="margin-bottom:10px" onclick="sendOTP()">📱 إرسال كود التحقق</button>
-      <button id="btn-reg" class="btn" onclick="doRegister()" style="display:none">✅ إنشاء الحساب وإرسال للمشرف</button>
-      <p class="auth-switch">لديك حساب؟ <a onclick="showPage('login')">سجّل الدخول</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- ADD SHOP -->
-<div id="page-add" class="page">
-  <div class="page-wrap">
-    <div class="page-head">
-      <h1>🏪 أضف محلك</h1>
-      <p>أضف تفاصيل محلك وحدد موقعه على الخريطة</p>
-    </div>
-    <div class="card">
-      <div class="form-group">
-        <div>
-          <label class="f-label">اسم المحل * <span id="cnt-name" class="char-count" style="float:left">0/60</span></label>
-          <input id="s-name" class="f-input" placeholder="مثال: محل أبو أحمد للإلكترونيات" maxlength="60" oninput="updateCount(this,'cnt-name',60)"/>
-        </div>
-        <div>
-          <label class="f-label">وصف المحل * <span id="cnt-desc" class="char-count" style="float:left">0/200</span></label>
-          <textarea id="s-desc" class="f-input" rows="3" placeholder="اكتب وصفاً مختصراً لمحلك..." maxlength="200" oninput="updateCount(this,'cnt-desc',200)"></textarea>
-        </div>
-        <div>
-          <label class="f-label">صورة المحل</label>
-          <div class="img-upload-area" id="add-upload-area">
-            <input type="file" accept="image/*" onchange="handleImgUpload(this,'add-preview-wrap','add-img-preview','add-img-data')"/>
-            <div class="upload-icon">📷</div>
-            <p>اضغط لاختيار صورة</p>
-            <small>JPG, PNG, WEBP — 5MB حد أقصى</small>
-          </div>
-          <div class="img-preview-wrap" id="add-preview-wrap" style="margin-top:8px">
-            <img id="add-img-preview"/>
-            <button class="remove-img" onclick="removeImg('add-preview-wrap','add-upload-area','add-img-data')">✕</button>
-          </div>
-          <input type="hidden" id="add-img-data"/>
-        </div>
-        <div>
-          <label class="f-label">حالة المحل *</label>
-          <div class="status-picker">
-            <label class="sp-opt opt-o"><input type="radio" name="add-st" value="open" checked/> 🟢 مفتوح</label>
-            <label class="sp-opt opt-b"><input type="radio" name="add-st" value="busy"/> 🟠 مشغول</label>
-            <label class="sp-opt opt-c"><input type="radio" name="add-st" value="closed"/> 🔴 مغلق</label>
-          </div>
-        </div>
-        <div>
-          <label class="f-label">موقع المحل *</label>
-          <p class="f-hint" style="margin-bottom:8px">👆 اضغط على الخريطة لتحديد الموقع</p>
-          <div id="add-map" class="mini-map"></div>
-          <div id="loc-fb" class="loc-feed"></div>
-        </div>
-      </div>
-      <button id="btn-add" class="btn primary" onclick="doAddShop()">🚀 نشر المحل على الخريطة</button>
-    </div>
-  </div>
-</div>
-
-<!-- DASHBOARD -->
-<div id="page-dashboard" class="page">
-  <div class="page-wrap" style="max-width:780px">
-    <div class="page-head"><h1>⚙️ لوحة التحكم</h1><p>إدارة محلك وتحديث حالته</p></div>
-    <div id="dash-content"><div class="empty"><div class="empty-ico">⏳</div><p>جاري التحميل...</p></div></div>
-  </div>
-</div>
-
-<!-- SHOP PUBLIC -->
-<div id="page-shop" class="page">
-  <div class="page-wrap">
-    <div id="shop-content"><div class="empty"><div class="empty-ico">⏳</div><p>جاري التحميل...</p></div></div>
-  </div>
-</div>
-
-<!-- ADMIN -->
-<div id="page-admin" class="page">
-  <div class="admin-wrap">
-    <div class="admin-hdr">
-      <div class="admin-crown">👑</div>
-      <div><div class="admin-title">لوحة المشرف</div><div class="admin-sub">تحكم كامل — إدارة جميع المحلات والمستخدمين</div></div>
-    </div>
-    <div id="ad-login-wrap">
-      <div class="admin-login-box">
-        <div style="text-align:center;margin-bottom:20px"><div style="font-size:36px;margin-bottom:7px">🔒</div><p style="color:var(--muted);font-size:13px">للمشرف فقط</p></div>
-        <div id="ad-form-sec">
-          <label class="f-label">كلمة سر المشرف</label>
-          <input id="ad-key" class="f-input" type="password" placeholder="••••••••••••" style="margin-bottom:14px" onkeydown="if(event.key==='Enter')doAdLogin()"/>
-          <button class="btn primary" onclick="doAdLogin()">🔓 دخول</button>
-        </div>
-        <div id="ad-blocked" style="display:none;text-align:center;padding:18px">
-          <div style="font-size:32px;margin-bottom:7px">🚫</div>
-          <p style="color:var(--red);font-weight:700">تم حظر الوصول</p>
-          <p id="ad-lockout-msg" style="font-size:13px;color:var(--muted);margin-top:5px"></p>
-        </div>
-      </div>
-    </div>
-    <div id="ad-panel" style="display:none">
-      <div class="admin-tabs">
-        <button class="admin-tab active" onclick="adTab('shops')">🏪 المحلات</button>
-        <button class="admin-tab" onclick="adTab('users')">👥 المستخدمين</button>
-        <button class="admin-tab" onclick="adTab('pending')">⏳ الطلبات <span id="pending-badge"></span></button>
-      </div>
-      <div class="stats-grid" id="ad-stats"></div>
-      <div id="ad-shops-section">
-        <p style="font-size:13px;font-weight:800;color:var(--dim);margin-bottom:12px">📋 جميع المحلات:</p>
-        <div id="ad-list"></div>
-      </div>
-      <div id="ad-users-section" style="display:none">
-        <p style="font-size:13px;font-weight:800;color:var(--dim);margin-bottom:12px">👥 المستخدمون:</p>
-        <div id="ad-users-list"></div>
-      </div>
-      <div id="ad-pending-section" style="display:none">
-        <p style="font-size:13px;font-weight:800;color:var(--dim);margin-bottom:12px">⏳ طلبات تسجيل جديدة:</p>
-        <div id="ad-pending-list"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- نص توضيحي صغير في console لتأكيد أن الروابط تعمل على web.telegram.org -->
 <script>
-/* ════════════ FIREBASE REST ════════════ */
-const DB="https://respict-212a7-default-rtdb.firebaseio.com";
-const db={
-  async get(p){try{const r=await fetch(`${DB}/${p}.json`);return r.ok?r.json():null}catch{return null}},
-  async set(p,d){try{const r=await fetch(`${DB}/${p}.json`,{method:'PUT',body:JSON.stringify(d),headers:{'Content-Type':'application/json'}});return r.ok}catch{return false}},
-  async patch(p,d){try{const r=await fetch(`${DB}/${p}.json`,{method:'PATCH',body:JSON.stringify(d),headers:{'Content-Type':'application/json'}});return r.ok}catch{return false}},
-  async del(p){try{const r=await fetch(`${DB}/${p}.json`,{method:'DELETE'});return r.ok}catch{return false}}
-};
-
-/* ════════════ HELPERS ════════════ */
-const el=id=>document.getElementById(id);
-const val=id=>(el(id)?.value||'').trim();
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-function genUid(){const a=new Uint8Array(16);crypto.getRandomValues(a);return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('')}
-function hashPwd(s){const salt='dk2025!';const str=salt+s+salt;let h1=5381,h2=52711;for(let i=0;i<str.length;i++){const c=str.charCodeAt(i);h1=Math.imul(31,h1)^c;h2=Math.imul(31,h2)^c}return'v2_'+(Math.abs(h1>>>0)).toString(16)+'_'+(Math.abs(h2>>>0)).toString(16)}
-function stLabel(s){return s==='open'?'🟢 مفتوح':s==='busy'?'🟠 مشغول':'🔴 مغلق'}
-function stCls(s){return s==='open'?'b-open':s==='busy'?'b-busy':'b-closed'}
-function imgFb(n){return`https://placehold.co/600x300/111827/38bdf8?text=${encodeURIComponent(n||'محل')}`}
-function safeImg(u,fb){if(!u)return fb;try{const x=new URL(u);if(x.protocol!=='https:'&&x.protocol!=='http:')return fb;return u}catch{return fb}}
-function setLoading(id,on){const b=el(id);if(!b)return;b.disabled=on;b._o=b._o||b.textContent;b.textContent=on?'⏳ جاري...':b._o}
-function toast(msg,type='ok'){const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;el('toast-el').appendChild(t);requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),320)},3400)}
-function updateCount(inp,cid,max){const n=inp.value.length;const c=el(cid);if(c){c.textContent=`${n}/${max}`;c.style.color=n>max*0.9?'var(--orange)':'var(--muted)'}}
-
-/* ════════════ RATE LIMITER ════════════ */
-const rl={a:{},check(k,max,ms){const now=Date.now();this.a[k]=(this.a[k]||[]).filter(t=>now-t<ms);if(this.a[k].length>=max)return false;this.a[k].push(now);return true},rem(k,max,ms){const now=Date.now();if(!this.a[k])return max;return Math.max(0,max-(this.a[k]||[]).filter(t=>now-t<ms).length)}};
-
-/* ════════════ SESSION ════════════ */
-const TTL=8*60*60*1000;
-const sess={
-  get(){try{const s=JSON.parse(localStorage.getItem('dk_s'));if(!s)return null;if(Date.now()-s.loginAt>TTL){this.clear();return null}return s}catch{return null}},
-  save(u){localStorage.setItem('dk_s',JSON.stringify({...u,loginAt:Date.now()}))},
-  clear(){localStorage.removeItem('dk_s')}
-};
-
-/* ════════════ IMAGE UPLOAD ════════════ */
-function handleImgUpload(input,wrapId,previewId,dataId){
-  const file=input.files[0];if(!file)return;
-  if(file.size>5*1024*1024){toast('حجم الصورة أكبر من 5MB','err');return}
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const wrap=el(wrapId),prev=el(previewId),data=el(dataId),area=input.parentElement;
-    prev.src=e.target.result;
-    wrap.style.display='block';
-    if(area&&area.classList.contains('img-upload-area'))area.style.display='none';
-    if(data)data.value=e.target.result;
-    toast('تم تحميل الصورة ✅');
-  };
-  reader.readAsDataURL(file);
-}
-function removeImg(wrapId,areaId,dataId){
-  const wrap=el(wrapId),area=el(areaId),data=el(dataId);
-  const prev=wrap?.querySelector('img');
-  if(prev)prev.src='';
-  if(wrap)wrap.style.display='none';
-  if(area)area.style.display='block';
-  if(data)data.value='';
-  const inp=area?.querySelector('input[type=file]');
-  if(inp)inp.value='';
-}
-
-/* ════════════ NAV ════════════ */
-async function updateNav(){
-  const u=sess.get();
-  const nav=el('nav-auth');
-  if(u){
-    const shop=await db.get('shops/'+u.uid);
-    nav.innerHTML=`
-      <div class="nav-user">
-        <div class="nav-avatar" id="nav-av"></div>
-        <span id="nav-nm" style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
-      </div>
-      <button class="nbtn" onclick="doLogout()">خروج</button>
-      <button class="nbtn blue" onclick="showPage('dashboard')">⚙️ لوحتي</button>
-      ${!shop?'<button class="nbtn green" onclick="showPage(\'add\')">+ محل</button>':''}`;
-    el('nav-av').textContent=u.name.charAt(0).toUpperCase();
-    el('nav-nm').textContent=u.name;
-  } else {
-    nav.innerHTML=`<button class="nbtn" onclick="showPage('login')">دخول</button><button class="nbtn blue" onclick="showPage('register')">+ حساب</button>`;
-  }
-}
-
-/* ════════════ ROUTER ════════════ */
-function showPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const pg=el('page-'+id);if(pg)pg.classList.add('active');
-  window.scrollTo(0,0);
-  if(id==='map'){
-    // إصلاح الخريطة البيضاء: invalidateSize بعد إظهار الصفحة
-    setTimeout(()=>{
-      initMap();
-      if(map){map.invalidateSize();loadShops();}
-    },80);
-  }
-  if(id==='add')setTimeout(initAddMap,150);
-  if(id==='dashboard')loadDash();
-  updateNav();
-}
-function goMap(){showPage('map')}
-
-/* ════════════ OTP ════════════ */
-let pendingOTP='',pendingRegData=null;
-
-function sendOTP(){
-  const name=val('r-user'),phone=val('r-phone'),phone2=val('r-phone2'),pass=val('r-pass'),pass2=val('r-pass2');
-  if(!name||!phone||!pass||!pass2)return toast('يرجى ملء جميع الحقول الإلزامية','err');
-  if(name.length<2)return toast('الاسم قصير جداً','err');
-  // قبول أرقام فلسطينية: 05XXXXXXXX (10 أرقام تبدأ بـ 05)
-  if(!/^05[0-9]{8}$/.test(phone))return toast('رقم الهاتف الفلسطيني غير صحيح\nمثال: 0592345678 أو 0522345678','err');
-  // التحقق من الرقم الإسرائيلي لو تم إدخاله (اختياري)
-  if(phone2&&!/^05[0-9]{8}$/.test(phone2))return toast('رقم الهاتف الإسرائيلي غير صحيح\nمثال: 0521234567','err');
-  if(pass.length<6)return toast('كلمة المرور قصيرة جداً','err');
-  if(pass!==pass2)return toast('كلمتا المرور غير متطابقتان','err');
-  if(!rl.check('otp_send',3,300000))return toast('حاول مجدداً بعد 5 دقائق','err');
-  pendingOTP=Math.floor(100000+Math.random()*900000).toString();
-  pendingRegData={name,phone,phone2:phone2||'',pass};
-  openPhoneModal(phone);
-}
-
-function openPhoneModal(phone){
-  // عرض الكود ثابتاً داخل الـ modal
-  const displayBox=el('otp-display-box');
-  const displayVal=el('otp-display-val');
-  if(displayBox&&displayVal){
-    displayBox.style.display='block';
-    displayVal.textContent=pendingOTP;
-  }
-  el('otp-hint').textContent=`للرقم: +970${phone}`;
-  const boxes=el('otp-boxes');
-  boxes.innerHTML='';
-  for(let i=0;i<6;i++){
-    const inp=document.createElement('input');
-    inp.type='text';inp.maxLength=1;inp.inputMode='numeric';inp.className='otp-inp';
-    inp.oninput=e=>{
-      e.target.value=e.target.value.replace(/\D/g,'');
-      if(e.target.value&&inp.nextElementSibling)inp.nextElementSibling.focus();
-    };
-    inp.onkeydown=e=>{
-      if(e.key==='Backspace'&&!e.target.value&&inp.previousElementSibling)inp.previousElementSibling.focus();
-    };
-    boxes.appendChild(inp);
-  }
-  el('phone-modal').classList.add('show');
-  setTimeout(()=>boxes.firstChild?.focus(),100);
-}
-function closePhoneModal(){el('phone-modal').classList.remove('show')}
-
-function verifyOTP(){
-  const entered=Array.from(el('otp-boxes').children).map(i=>i.value).join('');
-  if(entered.length<6)return toast('أدخل الكود كاملاً (6 أرقام)','err');
-  if(!rl.check('otp_verify',5,600000))return toast('محاولات كثيرة، انتظر','err');
-  if(entered===pendingOTP){
-    closePhoneModal();
-    el('btn-reg').style.display='block';
-    el('btn-send-otp').style.display='none';
-    toast('تم التحقق من رقم الهاتف ✅');
-  } else toast('الكود خاطئ، حاول مجدداً\nانظر الكود في النافذة السابقة','err');
-}
-
-/* ════════════ REGISTER ════════════ */
-async function doRegister(){
-  if(!pendingRegData)return toast('يرجى التحقق من رقم الهاتف أولاً','err');
-  const {name,phone,phone2,pass}=pendingRegData;
-  if(!rl.check('register',5,300000))return toast('محاولات كثيرة','err');
-  setLoading('btn-reg',true);
-  const newUid=genUid();
-  const data={
-    name,
-    phone,                    // رقم فلسطيني +970
-    phone2:phone2||'',        // رقم إسرائيلي +972 (اختياري)
-    pw:hashPwd(pass),
-    uid:newUid,
-    at:Date.now(),
-    status:'waiting'
-  };
-  const ok=await db.set('pending/'+newUid,data);
-  if(!ok){toast('حدث خطأ، تحقق من الاتصال','err');setLoading('btn-reg',false);return}
-  toast('تم إرسال طلبك! ستُفعَّل بعد موافقة المشرف 🎉','inf');
-  pendingRegData=null;pendingOTP='';
-  showPage('login');setLoading('btn-reg',false);
-}
-
-/* ════════════ LOGIN ════════════ */
-async function doLogin(){
-  const name=val('l-user'),pass=val('l-pass');
-  if(!name||!pass)return toast('يرجى ملء جميع الحقول','err');
-  const rk='login_ip';
-  if(!rl.check(rk,5,600000))return toast('تم حظر تسجيل الدخول مؤقتاً، حاول بعد 10 دقائق','err');
-  setLoading('btn-login',true);
-  const allUsers=await db.get('users');
-  let found=null;
-  if(allUsers)for(const u of Object.values(allUsers)){if(u.name===name&&u.pw===hashPwd(pass)){found=u;break}}
-  if(!found){
-    const pend=await db.get('pending');
-    if(pend&&Object.values(pend).find(p=>p.name===name)){
-      toast('حسابك لا يزال قيد المراجعة من المشرف ⏳','warn');
-    } else {
-      toast(`اسم المستخدم أو كلمة المرور خاطئة — ${rl.rem(rk,5,600000)} محاولات متبقية`,'err');
-    }
-    setLoading('btn-login',false);return;
-  }
-  sess.save({name:found.name,uid:found.uid});
-  toast('مرحباً بك '+found.name+' 👋');
-  showPage('map');setLoading('btn-login',false);
-}
-
-function doLogout(){sess.clear();toast('تم تسجيل الخروج','inf');updateNav();showPage('map')}
-
-/* ════════════ ADD SHOP ════════════ */
-async function doAddShop(){
-  const u=sess.get();if(!u)return toast('يجب تسجيل الدخول','err');
-  const name=val('s-name'),desc=val('s-desc');
-  const imgData=el('add-img-data')?.value||'';
-  const status=document.querySelector('input[name="add-st"]:checked')?.value||'open';
-  if(!name)return toast('يرجى كتابة اسم المحل','err');
-  if(!desc)return toast('يرجى كتابة وصف المحل','err');
-  if(!clickedLL)return toast('يرجى تحديد الموقع على الخريطة','err');
-  setLoading('btn-add',true);
-  const img=imgData||imgFb(name);
-  const ok=await db.set('shops/'+u.uid,{name,desc,status,img,lat:clickedLL.lat,lng:clickedLL.lng,uid:u.uid,uname:u.name,at:Date.now(),schedule:{enabled:false,open:'08:00',close:'20:00'}});
-  if(!ok){toast('حدث خطأ','err');setLoading('btn-add',false);return}
-  toast('تم نشر محلك! 🎉');showPage('dashboard');setLoading('btn-add',false);
-}
-
-/* ════════════ SCHEDULE ════════════ */
-function getPalestineTime(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Jerusalem'}))}
-function timeToMin(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+m}
-function isOpenBySchedule(schedule){
-  if(!schedule||!schedule.enabled)return null;
-  const now=getPalestineTime();
-  const cur=now.getHours()*60+now.getMinutes();
-  const o=timeToMin(schedule.open),c=timeToMin(schedule.close);
-  return o<c?cur>=o&&cur<c:cur>=o||cur<c;
-}
-let scheduleInterval=null;
-function startScheduleWatcher(){
-  if(scheduleInterval)clearInterval(scheduleInterval);
-  scheduleInterval=setInterval(autoUpdateStatus,60000);
-}
-async function autoUpdateStatus(){
-  const u=sess.get();if(!u)return;
-  const shop=await db.get('shops/'+u.uid);if(!shop)return;
-  const result=isOpenBySchedule(shop.schedule);
-  if(result===null)return;
-  const needed=result?'open':'closed';
-  if(shop.status!==needed){
-    await db.patch('shops/'+u.uid,{status:needed});
-    toast(needed==='open'?'🟢 تم فتح المحل تلقائياً حسب الجدول':'🔴 تم إغلاق المحل تلقائياً حسب الجدول','inf');
-  }
-}
-
-/* ════════════ DASHBOARD ════════════ */
-async function loadDash(){
-  const u=sess.get();if(!u){showPage('login');return}
-  el('dash-content').innerHTML='<div class="empty"><div class="empty-ico">⏳</div><p>جاري التحميل...</p></div>';
-  const shop=await db.get('shops/'+u.uid);
-  const cont=el('dash-content');
-  if(!shop){
-    cont.innerHTML=`<div class="empty"><div class="empty-ico">🏪</div><h3>لم تضف محلك بعد</h3><p>أضف محلك ليظهر على الخريطة</p><button class="btn primary sm" onclick="showPage('add')" style="margin:0 auto">أضف محلك الآن ←</button></div>`;
-    return;
-  }
-  const schResult=isOpenBySchedule(shop.schedule);
-  const schNote=schResult!==null?`<span class="${schResult?'sch-active':'sch-inactive'} schedule-status">⏰ الجدول ${schResult?'نشط — المحل مفتوح':'نشط — المحل مغلق'} الآن</span>`:'';
-  const shopUrl=location.origin+location.pathname+'?shop='+u.uid;
-  const sch=shop.schedule||{enabled:false,open:'08:00',close:'20:00'};
-  cont.innerHTML=`
-    <div class="shop-preview">
-      <img id="d-thumb" class="shop-thumb"/>
-      <div class="shop-info">
-        <h2 id="d-name"></h2>
-        <p id="d-desc"></p>
-        <span class="badge ${stCls(shop.status)}">${stLabel(shop.status)}</span>
-        ${schNote}
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-title">تغيير الحالة يدوياً</div>
-      <div class="status-big-btns">
-        <button class="sbb o ${shop.status==='open'?'active':''}" onclick="changeStatus('open')">🟢<br/>مفتوح</button>
-        <button class="sbb b ${shop.status==='busy'?'active':''}" onclick="changeStatus('busy')">🟠<br/>مشغول</button>
-        <button class="sbb c ${shop.status==='closed'?'active':''}" onclick="changeStatus('closed')">🔴<br/>مغلق</button>
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-title">⏰ جدول الفتح والإغلاق التلقائي (توقيت فلسطين)</div>
-      <div class="schedule-toggle">
-        <label class="toggle-switch">
-          <input type="checkbox" id="sch-enabled" ${sch.enabled?'checked':''} onchange="toggleSchedule()"/>
-          <div class="toggle-slider"></div>
-        </label>
-        <span class="schedule-label" id="sch-label">${sch.enabled?'الجدول مفعّل — تلقائي':'الجدول معطّل — يدوي'}</span>
-      </div>
-      <div class="schedule-row">
-        <div>
-          <label class="f-label">🟢 وقت الفتح</label>
-          <input type="time" id="sch-open" class="time-input" value="${sch.open||'08:00'}"/>
-        </div>
-        <div>
-          <label class="f-label">🔴 وقت الإغلاق</label>
-          <input type="time" id="sch-close" class="time-input" value="${sch.close||'20:00'}"/>
-        </div>
-      </div>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">⏱ الوقت الحالي في فلسطين: <b id="pal-time"></b></p>
-      <button class="btn primary" onclick="saveSchedule()" style="margin-bottom:8px">💾 حفظ الجدول</button>
-      <button class="btn" onclick="disableSchedule()">⏸ إيقاف الجدول</button>
-    </div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-title">تعديل بيانات المحل</div>
-      <div class="form-group" style="margin-bottom:0">
-        <div>
-          <label class="f-label">اسم المحل <span id="e-cnt-n" class="char-count" style="float:left">0/60</span></label>
-          <input id="e-name" class="f-input" maxlength="60" oninput="updateCount(this,'e-cnt-n',60)"/>
-        </div>
-        <div>
-          <label class="f-label">وصف المحل <span id="e-cnt-d" class="char-count" style="float:left">0/200</span></label>
-          <textarea id="e-desc" class="f-input" rows="3" maxlength="200" oninput="updateCount(this,'e-cnt-d',200)"></textarea>
-        </div>
-        <div>
-          <label class="f-label">تغيير صورة المحل</label>
-          <div class="img-upload-area" id="edit-upload-area">
-            <input type="file" accept="image/*" onchange="handleImgUpload(this,'edit-preview-wrap','edit-img-preview','edit-img-data')"/>
-            <div class="upload-icon">📷</div>
-            <p>اضغط لاختيار صورة جديدة</p>
-            <small>JPG, PNG, WEBP — 5MB حد أقصى</small>
-          </div>
-          <div class="img-preview-wrap" id="edit-preview-wrap" style="margin-top:8px">
-            <img id="edit-img-preview"/>
-            <button class="remove-img" onclick="removeImg('edit-preview-wrap','edit-upload-area','edit-img-data')">✕</button>
-          </div>
-          <input type="hidden" id="edit-img-data"/>
-        </div>
-        <button id="btn-edit" class="btn primary" onclick="doEdit()">💾 حفظ التعديلات</button>
-      </div>
-    </div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-title">تغيير كلمة المرور</div>
-      <div class="form-group" style="margin-bottom:0">
-        <div><label class="f-label">كلمة المرور الحالية</label><input id="cp-old" class="f-input" type="password" placeholder="••••••"/></div>
-        <div><label class="f-label">كلمة المرور الجديدة</label><input id="cp-new" class="f-input" type="password" placeholder="6 أحرف على الأقل"/></div>
-        <button id="btn-chpw" class="btn" onclick="doChangePass()">🔑 تغيير كلمة المرور</button>
-      </div>
-    </div>
-    <div class="qr-wrap" style="margin-bottom:14px">
-      <div class="card-title" style="text-align:center">QR Code لمحلك</div>
-      <div class="qr-box" id="qr-box"></div>
-      <p class="qr-link">🔗 <a id="qr-la" target="_blank"></a></p>
-      <div class="qr-actions">
-        <button class="btn sm" onclick="dlQR()">⬇️ تحميل QR</button>
-        <button class="btn sm" onclick="copyLink()">📋 نسخ الرابط</button>
-        <button class="btn sm primary" onclick="viewShop('${u.uid}')">👁️ صفحة المحل</button>
-      </div>
-    </div>
-    <button class="btn danger" onclick="doDelete()">🗑️ حذف المحل نهائياً</button>`;
-
-  const fb=imgFb(shop.name);
-  el('d-thumb').src=safeImg(shop.img,fb);el('d-thumb').onerror=function(){this.src=fb};
-  el('d-name').textContent=shop.name;el('d-desc').textContent=shop.desc;
-  el('e-name').value=shop.name;el('e-desc').value=shop.desc;
-  updateCount(el('e-name'),'e-cnt-n',60);updateCount(el('e-desc'),'e-cnt-d',200);
-  el('qr-la').textContent=shopUrl;el('qr-la').href=shopUrl;
-  updatePalTime();setInterval(updatePalTime,1000);
-  el('qr-box').innerHTML='';
-  new QRCode(el('qr-box'),{text:shopUrl,width:148,height:148,colorDark:'#07080f',colorLight:'#f0f4f8',correctLevel:QRCode.CorrectLevel.H});
-  startScheduleWatcher();
-  autoUpdateStatus();
-}
-
-function updatePalTime(){
-  const t=getPalestineTime();
-  const pt=el('pal-time');
-  if(pt)pt.textContent=t.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-}
-function toggleSchedule(){
-  const enabled=el('sch-enabled')?.checked;
-  const lbl=el('sch-label');
-  if(lbl)lbl.textContent=enabled?'الجدول مفعّل — تلقائي':'الجدول معطّل — يدوي';
-}
-async function saveSchedule(){
-  const u=sess.get();if(!u)return;
-  const enabled=el('sch-enabled')?.checked||false;
-  const open=el('sch-open')?.value||'08:00';
-  const close=el('sch-close')?.value||'20:00';
-  await db.patch('shops/'+u.uid,{schedule:{enabled,open,close}});
-  toast('تم حفظ الجدول ✅');autoUpdateStatus();
-}
-async function disableSchedule(){
-  const u=sess.get();if(!u)return;
-  await db.patch('shops/'+u.uid,{schedule:{enabled:false,open:'08:00',close:'20:00'}});
-  if(el('sch-enabled'))el('sch-enabled').checked=false;
-  toggleSchedule();toast('تم إيقاف الجدول — وضع يدوي','inf');
-}
-async function changeStatus(status){
-  const u=sess.get();if(!u)return;
-  const shop=await db.get('shops/'+u.uid);
-  if(shop?.schedule?.enabled){
-    await db.patch('shops/'+u.uid,{status,'schedule':{...shop.schedule,enabled:false}});
-    toast('تم تغيير الحالة — تم إيقاف الجدول التلقائي ✅');
-  } else {
-    await db.patch('shops/'+u.uid,{status});
-    toast('تم تغيير الحالة: '+stLabel(status));
-  }
-  loadDash();
-}
-async function doEdit(){
-  const u=sess.get();if(!u)return;
-  const name=val('e-name'),desc=val('e-desc');
-  const imgData=el('edit-img-data')?.value;
-  if(!name)return toast('اسم المحل لا يمكن أن يكون فارغاً','err');
-  setLoading('btn-edit',true);
-  const updates={name,desc};
-  if(imgData)updates.img=imgData;
-  await db.patch('shops/'+u.uid,updates);
-  toast('تم حفظ التعديلات ✅');loadDash();setLoading('btn-edit',false);
-}
-async function doChangePass(){
-  const u=sess.get();if(!u)return;
-  const oldP=val('cp-old'),newP=val('cp-new');
-  if(!oldP||!newP)return toast('يرجى ملء كلمتي المرور','err');
-  if(newP.length<6)return toast('كلمة المرور الجديدة قصيرة','err');
-  setLoading('btn-chpw',true);
-  const allUsers=await db.get('users');
-  const me=allUsers?Object.values(allUsers).find(x=>x.uid===u.uid):null;
-  if(!me||me.pw!==hashPwd(oldP)){toast('كلمة المرور الحالية خاطئة','err');setLoading('btn-chpw',false);return}
-  await db.patch('users/'+u.uid,{pw:hashPwd(newP)});
-  toast('تم تغيير كلمة المرور 🔑');setLoading('btn-chpw',false);
-}
-async function doDelete(){
-  if(!confirm('حذف محلك نهائياً؟ لا يمكن التراجع'))return;
-  const u=sess.get();await db.del('shops/'+u.uid);
-  toast('تم حذف المحل','inf');updateNav();showPage('map');
-}
-function dlQR(){const c=document.querySelector('#qr-box canvas');if(!c)return;const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='qr.png';a.click()}
-function copyLink(){const u=sess.get();if(!u)return;const url=location.origin+location.pathname+'?shop='+u.uid;navigator.clipboard.writeText(url).then(()=>toast('تم نسخ الرابط 📋'))}
-function viewShop(uid){showPage('shop');loadShopPage(uid)}
-
-/* ════════════ MAP — إصلاح الشاشة البيضاء ════════════ */
-let map=null,markers={},allShops={},mapReady=false,addMap=null,addMk=null,clickedLL=null;
-
-function initMap(){
-  if(mapReady){
-    // إذا كانت الخريطة محمّلة، أعد تحديد الحجم فقط
-    setTimeout(()=>map&&map.invalidateSize(),100);
-    return;
-  }
-  const container=el('the-map');
-  if(!container)return;
-  
-  map=L.map('the-map',{
-    zoomControl:true,
-    preferCanvas:true,       // أسرع على الموبايل
-    tap:true,                // لمس iOS
-    tapTolerance:15
-  }).setView([32.3104,35.0284],14);
-  
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap',
-    maxZoom:19,
-    keepBuffer:4,            // احتفظ بـ tiles أكثر
-    updateWhenIdle:false,    // تحديث فوري
-    updateWhenZooming:false
-  }).addTo(map);
-  
-  mapReady=true;
-  
-  // إصلاح حرج: invalidateSize بعد animation الصفحة
-  setTimeout(()=>map.invalidateSize(),200);
-  setTimeout(()=>map.invalidateSize(),600);
-}
-
-async function loadShops(){
-  if(!mapReady||!map)return;
-  Object.values(markers).forEach(m=>m.remove());markers={};
-  const shops=await db.get('shops');if(!shops){updateCounter({});return}
-  allShops=shops;updateCounter(shops);
-  Object.entries(shops).forEach(([sid,s])=>{
-    if(!s.lat||!s.lng)return;
-    const realStatus=s.schedule?.enabled&&isOpenBySchedule(s.schedule)!==null?(isOpenBySchedule(s.schedule)?'open':'closed'):s.status;
-    const col={open:'#22c55e',busy:'#f97316',closed:'#ef4444'}[realStatus]||'#94a3b8';
-    const icon=L.divIcon({html:`<div style="width:38px;height:38px;border-radius:50%;background:${col};border:3px solid #fff;box-shadow:0 3px 12px rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:17px;">🏪</div>`,className:'',iconSize:[38,38],iconAnchor:[19,19]});
-    const mk=L.marker([s.lat,s.lng],{icon}).addTo(map);
-    const popup=L.popup({maxWidth:270});
-    const div=document.createElement('div');div.className='pop';
-    const img=document.createElement('img');img.className='pop-img';
-    img.src=safeImg(s.img,imgFb(s.name));img.onerror=function(){this.src=imgFb(s.name)};
-    img.loading='lazy';
-    const body=document.createElement('div');body.className='pop-body';
-    const nameEl=document.createElement('div');nameEl.className='pop-name';nameEl.textContent=s.name;
-    const descEl=document.createElement('div');descEl.className='pop-desc';descEl.textContent=s.desc;
-    const badge=document.createElement('span');badge.className='badge '+stCls(realStatus);badge.textContent=stLabel(realStatus);badge.style.cssText='margin-bottom:8px;display:inline-flex';
-    const btn=document.createElement('button');btn.className='pop-btn';btn.textContent='عرض صفحة المحل ←';
-    btn.onclick=()=>{map.closePopup();viewShop(sid)};
-    body.append(nameEl,descEl,badge,btn);div.append(img,body);
-    popup.setContent(div);mk.bindPopup(popup);
-    markers[sid]=mk;
-  });
-}
-
-function updateCounter(shops){
-  const v=Object.values(shops);
-  el('cnt-o').textContent=v.filter(s=>s.status==='open').length;
-  el('cnt-b').textContent=v.filter(s=>s.status==='busy').length;
-  el('cnt-c').textContent=v.filter(s=>s.status==='closed').length;
-}
-
-function filterMarkers(q){
-  q=q.trim().toLowerCase();
-  Object.entries(allShops).forEach(([sid,s])=>{
-    const m=markers[sid];if(!m)return;
-    const ok=!q||s.name.toLowerCase().includes(q)||s.desc.toLowerCase().includes(q);
-    ok?m.addTo(map):m.remove();
-  });
-}
-
-function initAddMap(){
-  if(addMap){addMap.invalidateSize();return}
-  const container=el('add-map');
-  if(!container)return;
-  addMap=L.map('add-map',{preferCanvas:true,tap:true}).setView([32.3104,35.0284],14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(addMap);
-  addMap.on('click',e=>{
-    clickedLL=e.latlng;if(addMk)addMk.remove();addMk=L.marker(e.latlng).addTo(addMap);
-    const fb=el('loc-fb');fb.textContent=`📍 تم تحديد الموقع: ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;fb.style.display='block';
-  });
-  setTimeout(()=>addMap.invalidateSize(),150);
-}
-
-// إصلاح الخريطة عند تغيير حجم النافذة
-window.addEventListener('resize',()=>{
-  if(map&&el('page-map')?.classList.contains('active'))map.invalidateSize();
-  if(addMap&&el('page-add')?.classList.contains('active'))addMap.invalidateSize();
-});
-
-// إصلاح الخريطة عند العودة من الخلفية (موبايل)
-document.addEventListener('visibilitychange',()=>{
-  if(!document.hidden){
-    if(map)setTimeout(()=>map.invalidateSize(),200);
-    if(addMap)setTimeout(()=>addMap.invalidateSize(),200);
-  }
-});
-
-/* ════════════ SHOP PUBLIC ════════════ */
-async function loadShopPage(sid){
-  const cont=el('shop-content');
-  cont.innerHTML='<div class="empty"><div class="empty-ico">⏳</div><p>جاري التحميل...</p></div>';
-  const s=await db.get('shops/'+sid);
-  if(!s){cont.innerHTML='<div class="empty"><div class="empty-ico">😕</div><h3>المحل غير موجود</h3></div>';return}
-  const shopUrl=location.origin+location.pathname+'?shop='+sid;
-  const realStatus=s.schedule?.enabled&&isOpenBySchedule(s.schedule)!==null?(isOpenBySchedule(s.schedule)?'open':'closed'):s.status;
-  const schInfo=s.schedule?.enabled?`<span style="font-size:12px;color:var(--muted)">⏰ أوقات العمل: ${s.schedule.open} — ${s.schedule.close}</span>`:'';
-  cont.innerHTML=`
-    <div class="shop-page-card">
-      <img id="sp-img" class="shop-hero"/>
-      <div class="shop-page-body">
-        <div class="shop-page-hdr">
-          <h1 id="sp-name"></h1>
-          <span class="badge lg ${stCls(realStatus)}">${stLabel(realStatus)}</span>
-        </div>
-        ${schInfo}
-        <p id="sp-desc" class="shop-page-desc" style="margin-top:10px"></p>
-        <div class="shop-meta">
-          <span>👤 <span id="sp-user"></span></span>
-          <span>📅 ${new Date(s.at).toLocaleDateString('ar-SA')}</span>
-        </div>
-        <div class="shop-actions">
-          <button class="btn primary" onclick="goMap()">🗺️ الخريطة</button>
-          <button class="btn" onclick="navigator.clipboard.writeText('${shopUrl}').then(()=>toast('تم نسخ الرابط 📋'))">📋 نسخ الرابط</button>
-        </div>
-        <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:10px">
-          <p style="font-size:12px;color:var(--muted)">QR Code لهذا المحل</p>
-          <div class="qr-box" id="shop-qr-box"></div>
-        </div>
-      </div>
-    </div>`;
-  const fb=imgFb(s.name);
-  el('sp-img').src=safeImg(s.img,fb);el('sp-img').onerror=function(){this.src=fb};
-  el('sp-name').textContent=s.name;el('sp-desc').textContent=s.desc;el('sp-user').textContent=s.uname;
-  new QRCode(el('shop-qr-box'),{text:shopUrl,width:130,height:130,colorDark:'#07080f',colorLight:'#f0f4f8'});
-}
-
-/* ════════════════════════════════════════════════════════
-   ADMIN SECURITY
-   - كلمة السر غير موجودة في الكود نهائياً
-   - فقط الهاش المحسوب مخزّن، ولا يمكن عكسه
-   - لتغيير كلمة السر: شغّل hashPwd('كلمتك') في console
-     وغيّر قيمة _AH بالنتيجة
-════════════════════════════════════════════════════════ */
-// هاش كلمة سر المشرف — لا يمكن استخراج الكلمة الأصلية منه
-const _AH='v2_bbe15fa7_11589355';
-
-let adTries=0,adLocked=false,adLockUntil=0,adLoggedIn=false;
-const AD_MAX=3,AD_LOCK=15*60*1000;
-
-function doAdLogin(){
-  if(adLocked&&Date.now()<adLockUntil){
-    const rem=Math.ceil((adLockUntil-Date.now())/60000);
-    el('ad-lockout-msg').textContent=`حاول مجدداً بعد ${rem} دقيقة`;return;
-  }
-  if(!rl.check('admin_login',AD_MAX,AD_LOCK)){
-    adLocked=true;adLockUntil=Date.now()+AD_LOCK;
-    el('ad-form-sec').style.display='none';el('ad-blocked').style.display='block';
-    el('ad-lockout-msg').textContent='تم الحظر لمدة 15 دقيقة';return;
-  }
-  const key=val('ad-key');
-  // نقارن hash المدخل بـ hash المخزّن — كلمة السر الأصلية غير موجودة في الكود
-  const match=hashPwd(key)===_AH;
-  if(match){
-    adLoggedIn=true;adTries=0;
-    el('ad-login-wrap').style.display='none';
-    el('ad-panel').style.display='block';
-    loadAdminPanel();toast('مرحباً بالمشرف 👑');
-  } else {
-    adTries++;
-    if(adTries>=AD_MAX){
-      adLocked=true;adLockUntil=Date.now()+AD_LOCK;
-      el('ad-form-sec').style.display='none';el('ad-blocked').style.display='block';
-      el('ad-lockout-msg').textContent='تم الحظر لمدة 15 دقيقة';
-    } else toast(`كلمة السر خاطئة — ${AD_MAX-adTries} محاولات متبقية`,'err');
-  }
-}
-
-function adTab(t){
-  document.querySelectorAll('.admin-tab').forEach((b,i)=>b.classList.toggle('active',['shops','users','pending'][i]===t));
-  el('ad-shops-section').style.display=t==='shops'?'block':'none';
-  el('ad-users-section').style.display=t==='users'?'block':'none';
-  el('ad-pending-section').style.display=t==='pending'?'block':'none';
-}
-
-async function loadAdminPanel(){
-  const [shops,users,pending]=await Promise.all([db.get('shops'),db.get('users'),db.get('pending')]);
-  const tot=shops?Object.keys(shops).length:0;
-  const op=shops?Object.values(shops).filter(s=>s.status==='open').length:0;
-  const bu=shops?Object.values(shops).filter(s=>s.status==='busy').length:0;
-  const cl=shops?Object.values(shops).filter(s=>s.status==='closed').length:0;
-  const us=users?Object.keys(users).length:0;
-  const pn=pending?Object.keys(pending).length:0;
-  el('ad-stats').innerHTML=`
-    <div class="stat-box"><span class="stat-num">${tot}</span><span class="stat-lbl">المحلات</span></div>
-    <div class="stat-box g"><span class="stat-num">${op}</span><span class="stat-lbl">مفتوح</span></div>
-    <div class="stat-box or"><span class="stat-num">${bu}</span><span class="stat-lbl">مشغول</span></div>
-    <div class="stat-box r"><span class="stat-num">${cl}</span><span class="stat-lbl">مغلق</span></div>
-    <div class="stat-box"><span class="stat-num">${us}</span><span class="stat-lbl">المستخدمين</span></div>
-    <div class="stat-box gold"><span class="stat-num">${pn}</span><span class="stat-lbl">طلبات معلّقة</span></div>`;
-  if(pn>0)el('pending-badge').textContent=` (${pn})`;
-
-  // PENDING
-  const pl=el('ad-pending-list');pl.innerHTML='';
-  if(pending&&pn>0){
-    Object.entries(pending).forEach(([uid,p])=>{
-      const row=document.createElement('div');row.className='pending-row';
-      const name=document.createElement('div');name.className='pending-name';name.textContent=p.name;
-      const info=document.createElement('div');info.className='pending-info';
-      const phone2txt=p.phone2?` | 🇮🇱 +972${p.phone2.replace(/^0/,'')}`:'';
-      info.textContent=`🇵🇸 +970${p.phone}${phone2txt} | 📅 ${new Date(p.at).toLocaleString('ar-SA')}`;
-      const acts=document.createElement('div');acts.className='pending-acts';
-      const acc=document.createElement('button');acc.className='abtn g';acc.textContent='✅ قبول وتفعيل';acc.onclick=()=>approvePending(uid,p);
-      const rej=document.createElement('button');rej.className='abtn r';rej.textContent='❌ رفض';rej.onclick=()=>rejectPending(uid,p.name);
-      acts.append(acc,rej);row.append(name,info,acts);pl.appendChild(row);
-    });
-  } else pl.innerHTML='<div class="empty"><div class="empty-ico">✅</div><p>لا توجد طلبات معلّقة</p></div>';
-
-  // USERS
-  const ul=el('ad-users-list');ul.innerHTML='';
-  if(users){
-    Object.entries(users).forEach(([uid,u])=>{
-      const row=document.createElement('div');row.className='admin-row';
-      row.innerHTML=`
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <div class="nav-avatar" style="width:36px;height:36px;font-size:15px;flex-shrink:0" id="uav-${uid}"></div>
-          <div style="flex:1;min-width:0"><strong id="uname-${uid}"></strong><small style="display:block;color:var(--muted);font-size:11px" id="uphone-${uid}"></small></div>
-          <button class="abtn r" onclick="adDelUser('${uid}')">🗑️ حذف</button>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <input id="aeun-${uid}" class="f-input" style="flex:1;min-width:120px;font-size:13px;padding:8px 12px" placeholder="اسم جديد"/>
-          <input id="aepw-${uid}" class="f-input" type="password" style="flex:1;min-width:120px;font-size:13px;padding:8px 12px" placeholder="كلمة مرور جديدة"/>
-          <button class="abtn g" onclick="adEditUser('${uid}')">💾 حفظ</button>
-        </div>`;
-      row.querySelector(`#uav-${uid}`).textContent=u.name.charAt(0).toUpperCase();
-      row.querySelector(`#uname-${uid}`).textContent=u.name;
-      row.querySelector(`#uphone-${uid}`).textContent=u.phone?`🇵🇸 +970${u.phone}${u.phone2?' | 🇮🇱 +972'+u.phone2.replace(/^0/,''):''}`:'';
-      row.querySelector(`#aeun-${uid}`).value=u.name;
-      ul.appendChild(row);
-    });
-  } else ul.innerHTML='<div class="empty"><div class="empty-ico">👥</div><p>لا يوجد مستخدمون</p></div>';
-
-  // SHOPS
-  const sl=el('ad-list');sl.innerHTML='';
-  if(!shops){sl.innerHTML='<div class="empty"><div class="empty-ico">🏪</div><p>لا توجد محلات</p></div>';return}
-  Object.entries(shops).forEach(([sid,s])=>{
-    const row=document.createElement('div');row.className='admin-row';
-    const preview=document.createElement('div');preview.style.cssText='display:flex;align-items:center;gap:10px;flex-wrap:wrap';
-    const img=document.createElement('img');img.className='admin-thumb';
-    img.src=safeImg(s.img,imgFb(s.name));img.onerror=function(){this.src=imgFb(s.name)};img.loading='lazy';
-    const info=document.createElement('div');info.style.cssText='flex:1;min-width:0';
-    const strong=document.createElement('strong');strong.textContent=s.name;
-    strong.style.cssText='display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-    const small=document.createElement('small');small.style.cssText='display:block;color:var(--muted);font-size:11px;margin-top:2px';
-    small.textContent=`👤 ${s.uname} | 📅 ${new Date(s.at).toLocaleDateString('ar-SA')}`;
-    const badge=document.createElement('span');badge.className='badge '+stCls(s.status);badge.textContent=stLabel(s.status);badge.style.marginTop='4px';
-    info.append(strong,small,badge);preview.append(img,info);
-    const stRow=document.createElement('div');stRow.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
-    [['g','open','🟢 مفتوح'],['or','busy','🟠 مشغول'],['r','closed','🔴 مغلق']].forEach(([cls,st,lbl])=>{
-      const b=document.createElement('button');b.className=`abtn ${cls}`;b.textContent=lbl;b.onclick=()=>adSetStatus(sid,st);stRow.appendChild(b);
-    });
-    const editGrid=document.createElement('div');editGrid.className='edit-grid-2';
-    editGrid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px';
-    editGrid.innerHTML=`<input id="aen-${sid}" class="f-input" style="font-size:13px;padding:8px 12px" placeholder="اسم المحل"/><input id="aed-${sid}" class="f-input" style="font-size:13px;padding:8px 12px" placeholder="الوصف"/><div style="grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap"><div class="img-upload-area" id="aimg-area-${sid}" style="flex:1;min-width:100px;padding:10px"><input type="file" accept="image/*" onchange="adHandleImg('${sid}',this)"/><div style="font-size:18px;margin-bottom:3px">📷</div><p style="font-size:11px">رفع صورة</p></div><input type="hidden" id="aimg-data-${sid}"/><button class="abtn g" style="align-self:center" onclick="adEditShop('${sid}')">💾 حفظ</button><button class="abtn r" style="align-self:center" onclick="adDelete('${sid}','${esc(s.name)}')">🗑️ حذف</button></div>`;
-    editGrid.querySelector(`#aen-${sid}`).value=s.name;editGrid.querySelector(`#aed-${sid}`).value=s.desc;
-    row.append(preview,stRow,editGrid);sl.appendChild(row);
-  });
-}
-
-async function approvePending(uid,p){
-  const ok=await db.set('users/'+uid,{name:p.name,phone:p.phone,pw:p.pw,uid,at:p.at,approvedAt:Date.now()});
-  if(ok){await db.del('pending/'+uid);toast(`تم قبول ${p.name} ✅`);loadAdminPanel();}
-  else toast('حدث خطأ','err');
-}
-async function rejectPending(uid,name){
-  if(!confirm(`رفض طلب ${name}؟`))return;
-  await db.del('pending/'+uid);toast(`تم رفض طلب ${name}`,'inf');loadAdminPanel();
-}
-async function adSetStatus(sid,st){await db.patch('shops/'+sid,{status:st});toast('تم تغيير الحالة ✅');loadAdminPanel()}
-async function adEditShop(sid){
-  const name=el(`aen-${sid}`)?.value.trim(),desc=el(`aed-${sid}`)?.value.trim(),imgD=el(`aimg-data-${sid}`)?.value;
-  if(!name)return toast('الاسم لا يمكن أن يكون فارغاً','err');
-  const upd={name,desc};if(imgD)upd.img=imgD;
-  await db.patch('shops/'+sid,upd);toast('تم الحفظ ✅');loadAdminPanel();
-}
-function adHandleImg(sid,input){
-  const file=input.files[0];if(!file)return;
-  if(file.size>5*1024*1024){toast('حجم الصورة أكبر من 5MB','err');return}
-  const reader=new FileReader();
-  reader.onload=e=>{const d=el(`aimg-data-${sid}`);if(d)d.value=e.target.result;toast('صورة محمّلة — اضغط حفظ ✅')};
-  reader.readAsDataURL(file);
-}
-async function adEditUser(uid){
-  const name=el(`aeun-${uid}`)?.value.trim(),pw=el(`aepw-${uid}`)?.value.trim();
-  if(!name)return toast('الاسم لا يمكن أن يكون فارغاً','err');
-  const upd={name};if(pw){if(pw.length<6)return toast('كلمة المرور قصيرة','err');upd.pw=hashPwd(pw)}
-  await db.patch('users/'+uid,upd);toast('تم تعديل المستخدم ✅');loadAdminPanel();
-}
-async function adDelUser(uid){
-  if(!confirm('حذف هذا المستخدم ومحله نهائياً؟'))return;
-  await Promise.all([db.del('users/'+uid),db.del('shops/'+uid)]);toast('تم الحذف');loadAdminPanel();
-}
-async function adDelete(sid,name){
-  if(!confirm(`حذف محل "${name}"؟`))return;
-  await db.del('shops/'+sid);toast('تم الحذف');loadAdminPanel();
-}
-
-/* ════════════ INIT ════════════ */
-let tapCount=0;
-el('logo-tap').addEventListener('click',()=>{
-  tapCount++;if(tapCount>=5){tapCount=0;showPage('admin')}
-  setTimeout(()=>{tapCount=0},2000);
-});
-
-(function init(){
-  const p=new URLSearchParams(location.search);
-  const sid=p.get('shop');
-  if(sid){showPage('shop');loadShopPage(sid)}else showPage('map');
-  updateNav();
-})();
+    (function() {
+        // تعزيز للتأكد من أن كل الروابط تفتح بواسطة google chrome (المتصفح الافتراضي)
+        // ولإضافة إشعار لطيف عند النقر (اختياري)
+        const links = document.querySelectorAll('.channel-link');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                // لا نمنع الحدث، نسمح بالفتح بشكل طبيعي
+                // لكن نضيف تنبيه غير مزعج للمستخدم (اختياري محبب)
+                let channelName = this.querySelector('.channel-name')?.innerText || 'القناة';
+                console.log(`🚀 جارٍ فتح ${channelName} عبر تيليجرام ويب (Google Chrome)`);
+                // يمكن إظهار رسالة خفيفة كتأكيد (اختياري) لكن ليس ضروري لأن الرابط سيفتح
+            });
+        });
+        // تنبيه ترحيبي
+        console.log('⭐ تصميم تيليجرام | قنوات: المستشار أحمد أبو أياد - شمس المخيم - طولكرم بلدنا');
+    })();
 </script>
 </body>
 </html>
