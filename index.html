@@ -21,9 +21,8 @@
             padding: 20px;
         }
 
-        /* حاوية التطبيق بتصميم مشابه لتيليجرام */
         .telegram-card {
-            max-width: 550px;
+            max-width: 600px;
             width: 100%;
             background: #17212b;
             border-radius: 32px;
@@ -37,7 +36,6 @@
             transform: scale(1.01);
         }
 
-        /* رأس يشبه تيليجرام */
         .header {
             background: #1f2c38;
             padding: 20px 24px;
@@ -82,7 +80,6 @@
             border-radius: 40px;
         }
 
-        /* قائمة القنوات */
         .channels-list {
             padding: 16px 12px 24px 12px;
             display: flex;
@@ -90,7 +87,6 @@
             gap: 12px;
         }
 
-        /* بطاقة كل قناة */
         .channel-item {
             background: #1f2c38;
             border-radius: 20px;
@@ -115,7 +111,6 @@
             position: relative;
         }
 
-        /* أيقونة الطيران (تيليجرام) */
         .telegram-icon {
             background: #2c6e9e;
             width: 52px;
@@ -158,12 +153,13 @@
         }
 
         .username-hint {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #7e9eb5;
             margin-top: 6px;
             display: flex;
             align-items: center;
             gap: 5px;
+            word-break: break-all;
         }
         
         .info-note {
@@ -188,7 +184,6 @@
             color: #6fa8dc;
         }
 
-        /* فاصل مزخرف */
         .footer-note {
             background: #0f1a21e0;
             padding: 14px;
@@ -206,8 +201,7 @@
             color: #4a9eff;
         }
 
-        /* تنبيه جوجل - عند الضغط يفتح تيليجرام ويب */
-        @media (max-width: 550px) {
+        @media (max-width: 600px) {
             .channel-link {
                 padding: 12px 16px;
             }
@@ -217,11 +211,10 @@
                 font-size: 24px;
             }
             .channel-name {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
         }
 
-        /* تخصيص التمرير */
         ::-webkit-scrollbar {
             width: 5px;
         }
@@ -245,85 +238,65 @@
         <div class="sub">
             <i>🇵🇸 طولكرم بلدنا</i>
             <span>✦</span>
-            <i>⚡ بدون تسجيل دخول - معاينة فورية</i>
+            <i>⚡ بدون تسجيل دخول - افتح مباشرة</i>
         </div>
     </div>
 
     <div class="channels-list">
-        <!-- 1. المستشار أحمد أبو أياد -->
+        <!-- المستشار أحمد أبو أياد -->
         <div class="channel-item">
-            <a class="channel-link" href="https://t.me/s/AhmedAbuAyad" target="_blank" rel="noopener noreferrer">
-                <div class="telegram-icon">✈️</div>
+            <a class="channel-link" href="https://t.me/s/Almustashaar" target="_blank" rel="noopener noreferrer">
+                <div class="telegram-icon">⚖️</div>
                 <div class="info">
                     <div class="channel-name">
                         المستشار أحمد أبو أياد
-                        <span class="badge">معاينة عامة</span>
+                        <span class="badge">قناة عامة</span>
                     </div>
                     <div class="username-hint">
-                        🔗 t.me/s/AhmedAbuAyad
+                        🔗 https://t.me/s/Almustashaar
                     </div>
                     <div class="info-note">
-                        ✅ يفتح مباشرة بدون تسجيل دخول
+                        ✅ يفتح مباشرة - بدون تسجيل دخول
                     </div>
                 </div>
                 <div class="arrow">›</div>
             </a>
         </div>
 
-        <!-- 2. شمس المخيم -->
+        <!-- شمس المخيم -->
         <div class="channel-item">
-            <a class="channel-link" href="https://t.me/s/ShamsAlMukhayam" target="_blank" rel="noopener noreferrer">
+            <a class="channel-link" href="https://t.me/s/samsalmohaiam?before=137336" target="_blank" rel="noopener noreferrer">
                 <div class="telegram-icon">☀️</div>
                 <div class="info">
                     <div class="channel-name">
                         شمس المخيم
-                        <span class="badge">معاينة عامة</span>
+                        <span class="badge">قناة عامة</span>
                     </div>
                     <div class="username-hint">
-                        🔗 t.me/s/ShamsAlMukhayam
+                        🔗 https://t.me/s/samsalmohaiam?before=137336
                     </div>
                     <div class="info-note">
-                        ✅ يفتح مباشرة بدون تسجيل دخول
+                        ✅ يفتح مباشرة - بدون تسجيل دخول
                     </div>
                 </div>
                 <div class="arrow">›</div>
             </a>
         </div>
 
-        <!-- 3. طولكرم بلدنا -->
+        <!-- طولكرم بلدنا -->
         <div class="channel-item">
-            <a class="channel-link" href="https://t.me/s/TulkarmBaladna" target="_blank" rel="noopener noreferrer">
+            <a class="channel-link" href="https://t.me/s/tulkarembaladna10" target="_blank" rel="noopener noreferrer">
                 <div class="telegram-icon">🇵🇸</div>
                 <div class="info">
                     <div class="channel-name">
                         طولكرم بلدنا
-                        <span class="badge">معاينة عامة</span>
+                        <span class="badge">قناة عامة</span>
                     </div>
                     <div class="username-hint">
-                        🔗 t.me/s/TulkarmBaladna
+                        🔗 https://t.me/s/tulkarembaladna10
                     </div>
                     <div class="info-note">
-                        ✅ يفتح مباشرة بدون تسجيل دخول
-                    </div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
-        </div>
-        
-        <!-- 4. طولكرم الأخبارية (قناة إضافية) -->
-        <div class="channel-item">
-            <a class="channel-link" href="https://t.me/s/TulkarmCity" target="_blank" rel="noopener noreferrer">
-                <div class="telegram-icon">🏙️</div>
-                <div class="info">
-                    <div class="channel-name">
-                        طولكرم الأخبارية
-                        <span class="badge">معاينة عامة</span>
-                    </div>
-                    <div class="username-hint">
-                        🔗 t.me/s/TulkarmCity
-                    </div>
-                    <div class="info-note">
-                        ✅ يفتح مباشرة بدون تسجيل دخول
+                        ✅ يفتح مباشرة - بدون تسجيل دخول
                     </div>
                 </div>
                 <div class="arrow">›</div>
@@ -340,14 +313,15 @@
 
 <script>
     (function() {
-        console.log('⭐ تصميم تيليجرام | معاينة عامة - بدون تسجيل دخول');
-        console.log('✅ جميع الروابط تستخدم t.me/s/ لعرض المحتوى مباشرة');
+        console.log('⭐ قنوات تيليجرام | معاينة عامة - بدون تسجيل دخول');
+        console.log('✅ المستشار أحمد أبو أياد: https://t.me/s/Almustashaar');
+        console.log('✅ شمس المخيم: https://t.me/s/samsalmohaiam?before=137336');
+        console.log('✅ طولكرم بلدنا: https://t.me/s/tulkarembaladna10');
         
-        // إحصائيات الروابط
         const links = document.querySelectorAll('.channel-link');
         console.log(`📊 عدد القنوات: ${links.length}`);
         
-        links.forEach((link, index) => {
+        links.forEach((link) => {
             link.addEventListener('click', function() {
                 const channelName = this.querySelector('.channel-name')?.innerText || 'القناة';
                 console.log(`🚀 فتح: ${channelName} - باستخدام رابط المعاينة العامة`);
