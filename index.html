@@ -2,332 +2,344 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>قنوات تيليجرام - طولكرم بلدنا</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg:        #17212b;
+            --surface:   #1f2b37;
+            --divider:   #283543;
+            --accent:    #2b9af3;
+            --accent-dim:#1c5e96;
+            --text-1:    #ffffff;
+            --text-2:    #a2b5c6;
+            --text-3:    #5f7e96;
+            --online:    #4dd89e;
+            --avatar-bg: #2b5278;
         }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        html { font-size: 16px; }
 
         body {
-            font-family: 'Segoe UI', 'Tahoma', 'Helvetica Neue', sans-serif;
-            background: linear-gradient(145deg, #0f2a3b 0%, #0a1a24 100%);
+            font-family: 'IBM Plex Sans Arabic', 'Tahoma', sans-serif;
+            background: var(--bg);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .telegram-card {
-            max-width: 600px;
+        /* ─── App shell ─────────────────── */
+        .app {
             width: 100%;
-            background: #17212b;
-            border-radius: 32px;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-            backdrop-filter: blur(2px);
-            transition: transform 0.2s ease;
-        }
-
-        .telegram-card:hover {
-            transform: scale(1.01);
-        }
-
-        .header {
-            background: #1f2c38;
-            padding: 20px 24px;
-            border-bottom: 1px solid #2b3b47;
-            text-align: center;
-        }
-
-        .header h1 {
-            color: #ffffff;
-            font-size: 1.7rem;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .header h1 span {
-            background: #2b5270;
-            padding: 5px 12px;
-            border-radius: 60px;
-            font-size: 0.9rem;
-            font-weight: normal;
-            color: #c1e4ff;
-        }
-
-        .sub {
-            color: #8aaec0;
-            margin-top: 8px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .sub i {
-            font-style: normal;
-            background: #2e3e4a;
-            padding: 2px 10px;
-            border-radius: 40px;
-        }
-
-        .channels-list {
-            padding: 16px 12px 24px 12px;
+            max-width: 420px;
+            min-height: 100vh;
+            background: var(--bg);
             display: flex;
             flex-direction: column;
-            gap: 12px;
         }
 
-        .channel-item {
-            background: #1f2c38;
-            border-radius: 20px;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            border: 1px solid #2b3b47;
-            overflow: hidden;
-        }
-
-        .channel-item:hover {
-            background: #263846;
-            border-color: #3c6e8c;
-            transform: translateX(4px);
-        }
-
-        .channel-link {
+        /* ─── Header – exactly Telegram style ─── */
+        .tg-header {
+            background: var(--surface);
+            height: 56px;
             display: flex;
             align-items: center;
-            gap: 16px;
-            padding: 16px 20px;
+            padding: 0 8px 0 16px;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid var(--divider);
+            /* GPU-composited shadow, no layout jank */
+            box-shadow: 0 1px 0 var(--divider);
+        }
+
+        .tg-header .back-btn {
+            width: 40px; height: 40px;
+            border: none; background: none;
+            border-radius: 50%;
+            color: var(--accent);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            /* will-change keeps button click composited */
+            will-change: background;
+            transition: background 0.15s;
+            flex-shrink: 0;
+        }
+        .tg-header .back-btn:active { background: rgba(43,154,243,.12); }
+
+        .header-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--avatar-bg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .header-info { flex: 1; overflow: hidden; }
+        .header-info .title {
+            color: var(--text-1);
+            font-size: 0.95rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .header-info .subtitle {
+            color: var(--text-3);
+            font-size: 0.72rem;
+            margin-top: 1px;
+        }
+
+        .header-actions {
+            display: flex; gap: 2px;
+        }
+        .icon-btn {
+            width: 40px; height: 40px;
+            border: none; background: none;
+            border-radius: 50%;
+            color: var(--accent);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            will-change: background;
+            transition: background 0.15s;
+        }
+        .icon-btn:active { background: rgba(43,154,243,.12); }
+
+        /* ─── Section label ─── */
+        .section-label {
+            padding: 18px 16px 8px;
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* ─── Chat list items (Telegram-exact) ─── */
+        .chat-list { flex: 1; }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 16px;
+            /* ONLY background changes on hover – no transform, no scale */
+            transition: background 0.12s;
+            cursor: pointer;
+            position: relative;
             text-decoration: none;
             color: inherit;
-            position: relative;
+            /* Ripple needs relative */
         }
 
-        .telegram-icon {
-            background: #2c6e9e;
-            width: 52px;
-            height: 52px;
-            border-radius: 30px;
+        .chat-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(43,154,243,0);
+            transition: background 0.12s;
+        }
+
+        .chat-item:hover  { background: rgba(255,255,255,0.04); }
+        .chat-item:active { background: rgba(43,154,243,0.08); }
+
+        /* Separator – only between items, not after last */
+        .chat-item + .chat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 70px;
+            left: 0;
+            height: 1px;
+            background: var(--divider);
+        }
+
+        /* Avatar */
+        .avatar {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: var(--avatar-bg);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            /* Crisp on retina */
+            image-rendering: crisp-edges;
+            /* Prevent sub-pixel wobble */
+            transform: translateZ(0);
+        }
+
+        .avatar.green  { background: #2e7d32; }
+        .avatar.blue   { background: #1565c0; }
+        .avatar.teal   { background: #00695c; }
+        .avatar.orange { background: #bf360c; }
+
+        .avatar-wrap { position: relative; flex-shrink: 0; }
+
+        /* Text block */
+        .chat-body { flex: 1; min-width: 0; }
+
+        .chat-name {
+            color: var(--text-1);
+            font-size: 0.95rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+
+        .chat-preview {
+            color: var(--text-3);
+            font-size: 0.78rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            direction: ltr;
+            text-align: right;
+        }
+
+
+        .chat-meta {
             display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        /* ─── Verified tick ─── */
+        .verified {
+            display: inline-flex;
+            width: 14px; height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
-            transition: 0.2s;
+            font-size: 8px;
+            color: #fff;
+            margin-inline-start: 4px;
+            vertical-align: middle;
         }
 
-        .channel-item:hover .telegram-icon {
-            background: #3f89b9;
-            transform: scale(1.02);
+        /* ─── Pinned icon ─── */
+        .pin-icon {
+            color: var(--text-3);
+            font-size: 14px;
         }
 
-        .info {
-            flex: 1;
+
+
+        /* ─── Fade-in on load (single pass, no reflow) ─── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translate3d(0, 6px, 0); }
+            to   { opacity: 1; transform: translate3d(0, 0, 0); }
         }
 
-        .channel-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
+        .chat-item {
+            animation: fadeUp 0.22s ease both;
         }
+        .chat-item:nth-child(1) { animation-delay: 0.00s; }
+        .chat-item:nth-child(2) { animation-delay: 0.04s; }
+        .chat-item:nth-child(3) { animation-delay: 0.08s; }
+        .chat-item:nth-child(4) { animation-delay: 0.12s; }
 
-        .badge {
-            background: #2b4f6e;
-            font-size: 0.7rem;
-            font-weight: normal;
-            padding: 2px 12px;
-            border-radius: 30px;
-            color: #bde0ff;
-        }
-
-        .username-hint {
-            font-size: 0.7rem;
-            color: #7e9eb5;
-            margin-top: 6px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            word-break: break-all;
-        }
-        
-        .info-note {
-            font-size: 0.7rem;
-            color: #4a9eff;
-            margin-top: 4px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .arrow {
-            color: #5f8fae;
-            font-size: 22px;
-            opacity: 0.7;
-            transition: 0.2s;
-        }
-
-        .channel-item:hover .arrow {
-            opacity: 1;
-            transform: translateX(4px);
-            color: #6fa8dc;
-        }
-
-        .footer-note {
-            background: #0f1a21e0;
-            padding: 14px;
-            text-align: center;
-            border-top: 1px solid #2a3c48;
-            font-size: 0.75rem;
-            color: #6f8da0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .footer-note span:first-child {
-            color: #4a9eff;
-        }
-
-        @media (max-width: 600px) {
-            .channel-link {
-                padding: 12px 16px;
+        /* ─── Responsive ─── */
+        @media (min-width: 500px) {
+            .app {
+                margin: 24px auto;
+                min-height: auto;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 12px 40px rgba(0,0,0,.5);
             }
-            .telegram-icon {
-                width: 46px;
-                height: 46px;
-                font-size: 24px;
-            }
-            .channel-name {
-                font-size: 1rem;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0e1a22;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2e5d7a;
-            border-radius: 10px;
+            .chat-list { min-height: 360px; }
         }
     </style>
 </head>
 <body>
 
-<div class="telegram-card">
-    <div class="header">
-        <h1>
-            📡 قنوات تيليجرام
-            <span>معاينة عامة</span>
-        </h1>
-        <div class="sub">
-            <i>🇵🇸 طولكرم بلدنا</i>
-            <span>✦</span>
-            <i>⚡ بدون تسجيل دخول - افتح مباشرة</i>
-        </div>
-    </div>
+<div class="app">
 
-    <div class="channels-list">
-        <!-- المستشار أحمد أبو أياد -->
-        <div class="channel-item">
-            <a class="channel-link" href="https://t.me/s/Almustashaar" target="_blank" rel="noopener noreferrer">
-                <div class="telegram-icon">⚖️</div>
-                <div class="info">
-                    <div class="channel-name">
-                        المستشار أحمد أبو أياد
-                        <span class="badge">قناة عامة</span>
-                    </div>
-                    <div class="username-hint">
-                        🔗 https://t.me/s/Almustashaar
-                    </div>
-                    <div class="info-note">
-                        ✅ يفتح مباشرة - بدون تسجيل دخول
-                    </div>
+    <!-- Header -->
+    <header class="tg-header">
+        <button class="back-btn" aria-label="رجوع">‹</button>
+        <div class="header-avatar">📡</div>
+        <div class="header-info">
+            <div class="title">قنوات طولكرم بلدنا</div>
+            <div class="subtitle">3 قنوات</div>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" aria-label="بحث">🔍</button>
+            <button class="icon-btn" aria-label="المزيد">⋮</button>
+        </div>
+    </header>
+
+    <!-- Channels -->
+    <div class="chat-list" role="list">
+
+        <!-- Channel 1 -->
+        <a class="chat-item"
+           href="https://t.me/s/Almustashaar"
+           target="_blank" rel="noopener noreferrer"
+           role="listitem">
+            <div class="avatar-wrap">
+                <div class="avatar blue">⚖️</div>
+            </div>
+            <div class="chat-body">
+                <div class="chat-name">
+                    المستشار أحمد أبو أياد
+                    <span class="verified">✓</span>
                 </div>
-                <div class="arrow">›</div>
-            </a>
-        </div>
+                <div class="chat-preview">t.me/s/Almustashaar</div>
+            </div>
+            <div class="chat-meta"></div>
+        </a>
 
-        <!-- شمس المخيم -->
-        <div class="channel-item">
-            <a class="channel-link" href="https://t.me/s/samsalmohaiam?before=137336" target="_blank" rel="noopener noreferrer">
-                <div class="telegram-icon">☀️</div>
-                <div class="info">
-                    <div class="channel-name">
-                        شمس المخيم
-                        <span class="badge">قناة عامة</span>
-                    </div>
-                    <div class="username-hint">
-                        🔗 https://t.me/s/samsalmohaiam?before=137336
-                    </div>
-                    <div class="info-note">
-                        ✅ يفتح مباشرة - بدون تسجيل دخول
-                    </div>
+        <!-- Channel 2 -->
+        <a class="chat-item"
+           href="https://t.me/s/samsalmohaiam?before=137336"
+           target="_blank" rel="noopener noreferrer"
+           role="listitem">
+            <div class="avatar-wrap">
+                <div class="avatar orange">☀️</div>
+            </div>
+            <div class="chat-body">
+                <div class="chat-name">شمس المخيم</div>
+                <div class="chat-preview">t.me/s/samsalmohaiam</div>
+            </div>
+            <div class="chat-meta"></div>
+        </a>
+
+        <!-- Channel 3 -->
+        <a class="chat-item"
+           href="https://t.me/s/tulkarembaladna10"
+           target="_blank" rel="noopener noreferrer"
+           role="listitem">
+            <div class="avatar-wrap">
+                <div class="avatar teal">🇵🇸</div>
+            </div>
+            <div class="chat-body">
+                <div class="chat-name">
+                    طولكرم بلدنا
+                    <span class="verified">✓</span>
                 </div>
-                <div class="arrow">›</div>
-            </a>
-        </div>
+                <div class="chat-preview">t.me/s/tulkarembaladna10</div>
+            </div>
+            <div class="chat-meta"></div>
+        </a>
 
-        <!-- طولكرم بلدنا -->
-        <div class="channel-item">
-            <a class="channel-link" href="https://t.me/s/tulkarembaladna10" target="_blank" rel="noopener noreferrer">
-                <div class="telegram-icon">🇵🇸</div>
-                <div class="info">
-                    <div class="channel-name">
-                        طولكرم بلدنا
-                        <span class="badge">قناة عامة</span>
-                    </div>
-                    <div class="username-hint">
-                        🔗 https://t.me/s/tulkarembaladna10
-                    </div>
-                    <div class="info-note">
-                        ✅ يفتح مباشرة - بدون تسجيل دخول
-                    </div>
-                </div>
-                <div class="arrow">›</div>
-            </a>
-        </div>
-    </div>
-
-    <div class="footer-note">
-        <span>✨ لا يحتاج تسجيل دخول - معاينة فورية</span>
-        <span>🔗 روابط المعاينة العامة t.me/s/...</span>
-        <span>📱 يعمل على جميع المتصفحات</span>
-    </div>
 </div>
 
-<script>
-    (function() {
-        console.log('⭐ قنوات تيليجرام | معاينة عامة - بدون تسجيل دخول');
-        console.log('✅ المستشار أحمد أبو أياد: https://t.me/s/Almustashaar');
-        console.log('✅ شمس المخيم: https://t.me/s/samsalmohaiam?before=137336');
-        console.log('✅ طولكرم بلدنا: https://t.me/s/tulkarembaladna10');
-        
-        const links = document.querySelectorAll('.channel-link');
-        console.log(`📊 عدد القنوات: ${links.length}`);
-        
-        links.forEach((link) => {
-            link.addEventListener('click', function() {
-                const channelName = this.querySelector('.channel-name')?.innerText || 'القناة';
-                console.log(`🚀 فتح: ${channelName} - باستخدام رابط المعاينة العامة`);
-            });
-        });
-    })();
-</script>
 </body>
 </html>
