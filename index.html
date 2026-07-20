@@ -1,360 +1,364 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>قنوات تيليجرام - طولكرم بلدنا</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg:        #17212b;
-            --surface:   #1f2b37;
-            --divider:   #283543;
-            --accent:    #2b9af3;
-            --accent-dim:#1c5e96;
-            --text-1:    #ffffff;
-            --text-2:    #a2b5c6;
-            --text-3:    #5f7e96;
-            --online:    #4dd89e;
-            --avatar-bg: #2b5278;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=yes">
+<title>القنوات</title>
 
-        * { margin:0; padding:0; box-sizing:border-box; }
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="القنوات">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#17212B">
 
-        html { font-size: 16px; }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
 
-        body {
-            font-family: 'IBM Plex Sans Arabic', 'Tahoma', sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-        }
+<style>
+  :root{
+    --tg-blue:#2AABEE;
+    --tg-blue-dark:#229ED9;
+    --tg-header:#17212B;
+    --tg-bg:#FFFFFF;
+    --tg-list-bg:#F4F4F5;
+    --tg-text:#000000;
+    --tg-sub:#707579;
+    --tg-line:#E4E4E5;
+  }
 
-        /* ─── App shell ─────────────────── */
-        .app {
-            width: 100%;
-            max-width: 420px;
-            min-height: 100vh;
-            background: var(--bg);
-            display: flex;
-            flex-direction: column;
-        }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 
-        /* ─── Header – exactly Telegram style ─── */
-        .tg-header {
-            background: var(--surface);
-            height: 56px;
-            display: flex;
-            align-items: center;
-            padding: 0 8px 0 16px;
-            gap: 12px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border-bottom: 1px solid var(--divider);
-            /* GPU-composited shadow, no layout jank */
-            box-shadow: 0 1px 0 var(--divider);
-        }
+  html,body{
+    font-family:'Tajawal', sans-serif;
+    background: var(--tg-list-bg);
+    color: var(--tg-text);
+    font-size: 20px;
+  }
 
-        .tg-header .back-btn {
-            width: 40px; height: 40px;
-            border: none; background: none;
-            border-radius: 50%;
-            color: var(--accent);
-            font-size: 20px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            /* will-change keeps button click composited */
-            will-change: background;
-            transition: background 0.15s;
-            flex-shrink: 0;
-        }
-        .tg-header .back-btn:active { background: rgba(43,154,243,.12); }
+  .app{
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--tg-bg);
+    box-shadow: 0 0 40px rgba(0,0,0,0.12);
+  }
 
-        .header-avatar {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            background: var(--avatar-bg);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 17px;
-            flex-shrink: 0;
-        }
+  /* ---------- Telegram-style top bar ---------- */
+  .topbar{
+    background: var(--tg-header);
+    color:#fff;
+    padding: 22px 20px 20px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
 
-        .header-info { flex: 1; overflow: hidden; }
-        .header-info .title {
-            color: var(--text-1);
-            font-size: 0.95rem;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .header-info .subtitle {
-            color: var(--text-3);
-            font-size: 0.72rem;
-            margin-top: 1px;
-        }
+  .topbar .plane{
+    width:44px;
+    height:44px;
+    background: linear-gradient(135deg, var(--tg-blue), var(--tg-blue-dark));
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    flex-shrink:0;
+  }
 
-        .header-actions {
-            display: flex; gap: 2px;
-        }
-        .icon-btn {
-            width: 40px; height: 40px;
-            border: none; background: none;
-            border-radius: 50%;
-            color: var(--accent);
-            font-size: 18px;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            will-change: background;
-            transition: background 0.15s;
-        }
-        .icon-btn:active { background: rgba(43,154,243,.12); }
+  .topbar h1{
+    font-size: 1.6rem;
+    font-weight:700;
+  }
 
-        /* ─── Section label ─── */
-        .section-label {
-            padding: 18px 16px 8px;
-            color: var(--accent);
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
+  .topbar p{
+    font-size: 0.9rem;
+    color:#8B98A5;
+    margin-top:2px;
+  }
 
-        /* ─── Chat list items (Telegram-exact) ─── */
-        .chat-list { flex: 1; }
+  /* ---------- Chat list, exactly like Telegram ---------- */
+  .chatlist{
+    background: var(--tg-bg);
+  }
 
-        .chat-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 10px 16px;
-            /* ONLY background changes on hover – no transform, no scale */
-            transition: background 0.12s;
-            cursor: pointer;
-            position: relative;
-            text-decoration: none;
-            color: inherit;
-            /* Ripple needs relative */
-        }
+  .chat-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding: 20px 20px;
+    text-decoration:none;
+    color: inherit;
+    border-bottom: 1px solid var(--tg-line);
+    min-height: 96px;
+  }
 
-        .chat-item::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(43,154,243,0);
-            transition: background 0.12s;
-        }
+  .chat-row:active{
+    background: var(--tg-list-bg);
+  }
 
-        .chat-item:hover  { background: rgba(255,255,255,0.04); }
-        .chat-item:active { background: rgba(43,154,243,0.08); }
+  .avatar{
+    flex-shrink:0;
+    width:66px;
+    height:66px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:32px;
+    color:#fff;
+  }
 
-        /* Separator – only between items, not after last */
-        .chat-item + .chat-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 70px;
-            left: 0;
-            height: 1px;
-            background: var(--divider);
-        }
+  .avatar.a1{ background: linear-gradient(135deg,#FF885E,#FF516A); }
+  .avatar.a2{ background: linear-gradient(135deg,#FFA85C,#FFCA5C); }
+  .avatar.a3{ background: linear-gradient(135deg,#54CB68,#A0DE7E); }
 
-        /* Avatar */
-        .avatar {
-            width: 52px; height: 52px;
-            border-radius: 50%;
-            background: var(--avatar-bg);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-            /* Crisp on retina */
-            image-rendering: crisp-edges;
-            /* Prevent sub-pixel wobble */
-            transform: translateZ(0);
-        }
+  .chat-info{
+    flex:1;
+    min-width:0;
+  }
 
-        .avatar.green  { background: #2e7d32; }
-        .avatar.blue   { background: #1565c0; }
-        .avatar.teal   { background: #00695c; }
-        .avatar.orange { background: #bf360c; }
+  .chat-name{
+    font-size: 1.35rem;
+    font-weight:700;
+    color: var(--tg-text);
+  }
 
-        .avatar-wrap { position: relative; flex-shrink: 0; }
+  .chat-sub{
+    margin-top:4px;
+    font-size: 1rem;
+    color: var(--tg-sub);
+  }
 
-        /* Text block */
-        .chat-body { flex: 1; min-width: 0; }
+  .chevron{
+    flex-shrink:0;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background: var(--tg-list-bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color: var(--tg-sub);
+    font-size:20px;
+  }
 
-        .chat-name {
-            color: var(--text-1);
-            font-size: 0.95rem;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 3px;
-        }
+  /* ---------- Big call-to-action hint ---------- */
+  .hint{
+    margin: 26px 20px 4px;
+    background: #EAF5FE;
+    border: 2px solid #CDE9FA;
+    border-radius: 18px;
+    padding: 18px;
+    text-align:center;
+    font-size: 1.05rem;
+    color: var(--tg-blue-dark);
+    font-weight:700;
+  }
 
-        .chat-preview {
-            color: var(--text-3);
-            font-size: 0.78rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            direction: ltr;
-            text-align: right;
-        }
+  /* ---------- Install section ---------- */
+  .install{
+    margin-top: 30px;
+    background: var(--tg-bg);
+    border-top: 8px solid var(--tg-list-bg);
+    padding-bottom: 10px;
+  }
 
+  .install-title{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding: 22px 20px 4px;
+  }
 
-        .chat-meta {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-            flex-shrink: 0;
-        }
+  .install-title .icn{
+    font-size:30px;
+  }
 
-        /* ─── Verified tick ─── */
-        .verified {
-            display: inline-flex;
-            width: 14px; height: 14px;
-            background: var(--accent);
-            border-radius: 50%;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-            color: #fff;
-            margin-inline-start: 4px;
-            vertical-align: middle;
-        }
+  .install-title h2{
+    font-size:1.3rem;
+    font-weight:900;
+  }
 
-        /* ─── Pinned icon ─── */
-        .pin-icon {
-            color: var(--text-3);
-            font-size: 14px;
-        }
+  .install-desc{
+    padding: 6px 20px 18px;
+    font-size:1.05rem;
+    color: var(--tg-sub);
+    line-height:1.6;
+  }
 
+  .tabs{
+    display:flex;
+    gap:0;
+    margin: 0 20px 14px;
+    background: var(--tg-list-bg);
+    border-radius: 14px;
+    padding:4px;
+  }
 
+  .tab-btn{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding: 12px 8px;
+    font-family:'Tajawal', sans-serif;
+    font-weight:700;
+    font-size: 1.05rem;
+    color: var(--tg-sub);
+    border-radius: 10px;
+    cursor:pointer;
+  }
 
-        /* ─── Fade-in on load (single pass, no reflow) ─── */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translate3d(0, 6px, 0); }
-            to   { opacity: 1; transform: translate3d(0, 0, 0); }
-        }
+  .tab-btn.active{
+    background: #fff;
+    color: var(--tg-text);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
 
-        .chat-item {
-            animation: fadeUp 0.22s ease both;
-        }
-        .chat-item:nth-child(1) { animation-delay: 0.00s; }
-        .chat-item:nth-child(2) { animation-delay: 0.04s; }
-        .chat-item:nth-child(3) { animation-delay: 0.08s; }
-        .chat-item:nth-child(4) { animation-delay: 0.12s; }
+  .tab-panel{ display:none; padding: 4px 20px 24px; }
+  .tab-panel.active{ display:block; }
 
-        /* ─── Responsive ─── */
-        @media (min-width: 500px) {
-            .app {
-                margin: 24px auto;
-                min-height: auto;
-                border-radius: 16px;
-                overflow: hidden;
-                box-shadow: 0 12px 40px rgba(0,0,0,.5);
-            }
-            .chat-list { min-height: 360px; }
-        }
-    </style>
+  .steps{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .steps li{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    font-size: 1.15rem;
+    line-height:1.7;
+  }
+
+  .step-num{
+    flex-shrink:0;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background: var(--tg-blue);
+    color:#fff;
+    font-weight:900;
+    font-size:1.1rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .key{
+    display:inline-block;
+    background: var(--tg-list-bg);
+    border:1px solid var(--tg-line);
+    padding:2px 10px;
+    border-radius:8px;
+    font-weight:700;
+  }
+
+  footer{
+    text-align:center;
+    padding: 26px 20px 34px;
+    font-size:0.95rem;
+    color: var(--tg-sub);
+  }
+
+  :focus-visible{
+    outline: 3px solid var(--tg-blue);
+    outline-offset:2px;
+  }
+</style>
 </head>
 <body>
 
 <div class="app">
 
-    <!-- Header -->
-    <header class="tg-header">
-        <button class="back-btn" aria-label="رجوع">‹</button>
-        <div class="header-avatar">📡</div>
-        <div class="header-info">
-            <div class="title">قنوات طولكرم بلدنا</div>
-            <div class="subtitle">4 قنوات</div>
-        </div>
-        <div class="header-actions">
-            <button class="icon-btn" aria-label="بحث">🔍</button>
-            <button class="icon-btn" aria-label="المزيد">⋮</button>
-        </div>
-    </header>
+  <div class="topbar">
+    <div class="plane">📡</div>
+    <div>
+      <h1>القنوات</h1>
+      <p>اضغط على أي اسم لفتح القناة</p>
+    </div>
+  </div>
 
-    <!-- Channels -->
-    <div class="chat-list" role="list">
+  <div class="chatlist">
 
-        <!-- Channel 1 -->
-        <a class="chat-item"
-           href="https://t.me/s/Almustashaar"
-           target="_blank" rel="noopener noreferrer"
-           role="listitem">
-            <div class="avatar-wrap">
-                <div class="avatar blue">⚖️</div>
-            </div>
-            <div class="chat-body">
-                <div class="chat-name">
-                    المستشار أحمد أبو أياد
-                    <span class="verified">✓</span>
-                </div>
-                <div class="chat-preview">t.me/s/Almustashaar</div>
-            </div>
-            <div class="chat-meta"></div>
-        </a>
+    <a class="chat-row" href="https://t.me/s/Almustashaar" target="_blank" rel="noopener noreferrer">
+      <div class="avatar a1">⚖️</div>
+      <div class="chat-info">
+        <div class="chat-name">المستشار أحمد أبو أياد</div>
+        <div class="chat-sub">اضغط هنا للدخول</div>
+      </div>
+      <div class="chevron">‹</div>
+    </a>
 
-        <!-- Channel 2 -->
-        <a class="chat-item"
-           href="https://t.me/s/samsalmohaiam?before=137336"
-           target="_blank" rel="noopener noreferrer"
-           role="listitem">
-            <div class="avatar-wrap">
-                <div class="avatar orange">☀️</div>
-            </div>
-            <div class="chat-body">
-                <div class="chat-name">شمس المخيم</div>
-                <div class="chat-preview">t.me/s/samsalmohaiam</div>
-            </div>
-            <div class="chat-meta"></div>
-        </a>
+    <a class="chat-row" href="https://t.me/s/samsalmohaiam?before=137336" target="_blank" rel="noopener noreferrer">
+      <div class="avatar a2">☀️</div>
+      <div class="chat-info">
+        <div class="chat-name">شمس المخيم</div>
+        <div class="chat-sub">اضغط هنا للدخول</div>
+      </div>
+      <div class="chevron">‹</div>
+    </a>
 
-        <!-- Channel 3 -->
-        <a class="chat-item"
-           href="https://t.me/s/tulkarembaladna10"
-           target="_blank" rel="noopener noreferrer"
-           role="listitem">
-            <div class="avatar-wrap">
-                <div class="avatar teal">🇵🇸</div>
-            </div>
-            <div class="chat-body">
-                <div class="chat-name">
-                    طولكرم بلدنا
-                    <span class="verified">✓</span>
-                </div>
-                <div class="chat-preview">t.me/s/tulkarembaladna10</div>
-            </div>
-            <div class="chat-meta"></div>
-        </a>
+    <a class="chat-row" href="https://t.me/s/tulkarembaladna10" target="_blank" rel="noopener noreferrer">
+      <div class="avatar a3">🇵🇸</div>
+      <div class="chat-info">
+        <div class="chat-name">طولكرم بلدنا</div>
+        <div class="chat-sub">اضغط هنا للدخول</div>
+      </div>
+      <div class="chevron">‹</div>
+    </a>
 
-        <!-- Channel 4 -->
-        <a class="chat-item"
-           href="https://t.me/s/a7rartullkarm"
-           target="_blank" rel="noopener noreferrer"
-           role="listitem">
-            <div class="avatar-wrap">
-                <div class="avatar green">🕊️</div>
-            </div>
-            <div class="chat-body">
-                <div class="chat-name">أحرار طولكرم</div>
-                <div class="chat-preview">t.me/s/a7rartullkarm</div>
-            </div>
-            <div class="chat-meta"></div>
-        </a>
+  </div>
+
+  <div class="hint">👆 بس اضغط بإصبعك على الاسم وبتفتح القناة على طول</div>
+
+  <div class="install">
+    <div class="install-title">
+      <span class="icn">📲</span>
+      <h2>خلي هاي الصفحة زي تطبيق</h2>
+    </div>
+    <p class="install-desc">اعمل هيك مرة وحدة، وبعدها بتلاقي أيقونة على شاشة الهاتف تفتحلك الصفحة على طول</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="ios">آيفون</button>
+      <button class="tab-btn" data-tab="android">أندرويد</button>
+    </div>
+
+    <div class="tab-panel active" id="ios">
+      <ol class="steps">
+        <li><span class="step-num">1</span> اضغط على زر <span class="key">⬆️</span> تحت بالنص</li>
+        <li><span class="step-num">2</span> بعدها اضغط على <span class="key">إضافة إلى الشاشة الرئيسية</span></li>
+        <li><span class="step-num">3</span> اضغط <span class="key">إضافة</span> بالزاوية</li>
+        <li><span class="step-num">4</span> خلص، صار عندك أيقونة على الشاشة</li>
+      </ol>
+    </div>
+
+    <div class="tab-panel" id="android">
+      <ol class="steps">
+        <li><span class="step-num">1</span> اضغط على النقاط <span class="key">⋮</span> فوق</li>
+        <li><span class="step-num">2</span> اضغط <span class="key">إضافة إلى الشاشة الرئيسية</span></li>
+        <li><span class="step-num">3</span> اضغط <span class="key">إضافة</span> مرتين</li>
+        <li><span class="step-num">4</span> خلص، صار عندك أيقونة على الشاشة</li>
+      </ol>
+    </div>
+  </div>
+
+  <footer>إشارات البلد 🇵🇸</footer>
 
 </div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
 
 </body>
 </html>
